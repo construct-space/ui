@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useToast } from '../composables/useNotification'
+import { useNotification } from '../composables/useNotification'
 
-const { toasts, toast } = useToast()
+const { notifications, notification } = useNotification()
 
 const colorClasses: Record<string, string> = {
   success: 'border-emerald-500/30 bg-emerald-500/10',
@@ -30,7 +30,7 @@ function getIconColorClass(color?: string): string {
   <Teleport to="body">
     <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-80">
       <TransitionGroup name="toast" tag="div" class="flex flex-col gap-2">
-        <div v-for="t in toasts" :key="t.id" :class="[
+        <div v-for="t in notifications" :key="t.id" :class="[
           'rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm',
           'bg-[var(--app-background)]',
           getColorClass(t.color),
@@ -79,14 +79,14 @@ function getIconColorClass(color?: string): string {
               <button v-if="t.action"
                 class="mt-1.5 text-xs font-medium px-2.5 py-1 rounded-md transition-colors cursor-pointer"
                 :class="[getIconColorClass(t.color), 'hover:bg-white/10 border border-current/20']"
-                @click="t.action!.onClick(); toast.remove(t.id)">
+                @click="t.action!.onClick(); notification.remove(t.id)">
                 {{ t.action.label }}
               </button>
             </div>
 
             <button
               class="shrink-0 rounded-sm text-[var(--app-muted)] hover:text-[var(--app-foreground)] transition-colors cursor-pointer"
-              @click="toast.remove(t.id)">
+              @click="notification.remove(t.id)">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />

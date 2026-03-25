@@ -49,13 +49,7 @@ export function useNotification() {
   }
 }
 
-/** Alias for Toast.vue compatibility */
-export function useToast() {
-  return {
-    toasts: notifications,
-    toast: { add, remove, clear },
-    add,
-    remove,
-    clear,
-  }
+/** Quick notification helper — `notify('Saved!')` or `notify('Error', 'error')` */
+export function notify(title: string, color?: Notification['color'], description?: string) {
+  return add({ title, color: color || 'info', description })
 }
