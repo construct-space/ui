@@ -1,0 +1,60 @@
+{
+  "name": "@construct-space/ui",
+  "version": "0.1.0",
+  "description": "Construct UI — Vue 3 component library for Construct services",
+  "type": "module",
+  "main": "./dist/construct-ui.js",
+  "module": "./dist/construct-ui.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/construct-ui.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tokens": "./dist/tokens.css",
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "construct",
+    "ui",
+    "vue",
+    "components",
+    "design-system"
+  ],
+  "homepage": "https://github.com/construct-space/ui",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/construct-space/ui.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Construct Team"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc --emitDeclarationOnly",
+    "dev": "vite build --watch",
+    "prepublishOnly": "bun run build",
+    "release": "bun run build && npm publish"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "reka-ui": "^2.0.0",
+    "@iconify/vue": "^4.0.0"
+  },
+  "devDependencies": {
+    "vue": "^3.5.28",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "vue-tsc": "^2.0.0"
+  }
+}
