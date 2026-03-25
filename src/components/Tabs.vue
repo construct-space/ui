@@ -124,7 +124,7 @@ function triggerClasses(item: ResolvedTab) {
   const disabledCls = item.disabled ? 'pointer-events-none opacity-50' : ''
 
   if (props.variant === 'segmented') {
-    const activeCls = isActive ? 'bg-app-accent text-white' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
+    const activeCls = isActive ? 'bg-[var(--app-accent)] text-white' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
     return [base, 'rounded-md px-4 py-1.5', activeCls, disabledCls]
   }
 
