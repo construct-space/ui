@@ -43,6 +43,16 @@ export { default as Notification } from './components/Notification.vue'
 export { default as Tooltip } from './components/Tooltip.vue'
 export { default as Tree } from './components/Tree.vue'
 
+// New components
+export { default as Autocomplete } from './components/Autocomplete.vue'
+export { default as Breadcrumbs } from './components/Breadcrumbs.vue'
+export { default as DatePicker } from './components/DatePicker.vue'
+export { default as FileInput } from './components/FileInput.vue'
+export { default as MultiSelect } from './components/MultiSelect.vue'
+export { default as Sidebar3D } from './components/Sidebar3D.vue'
+export { default as ToggleGroup } from './components/ToggleGroup.vue'
+export { default as Toolbar3D } from './components/Toolbar3D.vue'
+
 // Layouts
 export { default as SidebarLayout } from './layouts/SidebarLayout.vue'
 export { default as HeaderLayout } from './layouts/HeaderLayout.vue'
@@ -61,6 +71,12 @@ export { useKeyboard, useHotkey } from './composables/useKeyboard'
 export type { KeyBinding } from './composables/useKeyboard'
 export { useClickOutside } from './composables/useClickOutside'
 export { useLocalStorage } from './composables/useLocalStorage'
+export { useAsync } from './composables/useAsync'
+export type { AsyncState } from './composables/useAsync'
+export { useDebounce, useThrottle, debounce } from './composables/useDebounce'
+export { useToggle, useCounter } from './composables/useToggle'
+export { useSearch } from './composables/useSearch'
+export { useIntersectionObserver } from './composables/useIntersectionObserver'
 
 // Tokens CSS (importable as side-effect)
 import './tokens/tokens.css'
