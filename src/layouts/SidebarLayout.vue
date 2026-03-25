@@ -6,8 +6,17 @@
  * Consumers pass nav items and user info as props.
  */
 import { ref, computed } from 'vue'
+import { Icon } from '@iconify/vue'
+
+/** Convert shorthand icon names to Iconify format if needed */
+function toIconify(name: string): string {
+  if (name.includes(':')) return name          // already "mdi:home"
+  if (name.startsWith('lucide-')) return name.replace('-', ':') // "lucide-home" → "lucide:home"
+  return `lucide:${name}`                      // bare "home" → "lucide:home"
+}
 
 export interface NavItem {
+  /** Iconify icon name, e.g. "lucide:home" or shorthand "home" */
   icon: string
   label: string
   to: string
@@ -50,7 +59,7 @@ const initials = computed(() => {
       <!-- Logo -->
       <div class="cui-sidebar-logo">
         <slot name="logo">
-          <span v-if="serviceIcon" v-html="serviceIcon" />
+          <span v-if="serviceIcon">{{ serviceIcon }}</span>
           <span v-else class="cui-sidebar-logo-text">C</span>
         </slot>
       </div>
@@ -66,7 +75,7 @@ const initials = computed(() => {
           @mouseenter="hoveredNav = item.to"
           @mouseleave="hoveredNav = null"
         >
-          <span v-html="item.icon" />
+          <Icon :icon="toIconify(item.icon)" width="20" height="20" />
           <div v-if="hoveredNav === item.to" class="cui-sidebar-tooltip">
             {{ item.label }}
           </div>

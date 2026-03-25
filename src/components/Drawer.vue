@@ -45,6 +45,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
 })
 
 // Prevent body scroll when open

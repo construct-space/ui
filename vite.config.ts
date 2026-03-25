@@ -12,11 +12,10 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', 'vue-router'],
+      external: ['vue'],
       output: {
         globals: {
           vue: 'Vue',
-          'vue-router': 'VueRouter',
         },
         assetFileNames: 'style.css',
       },

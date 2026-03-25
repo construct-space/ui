@@ -121,8 +121,8 @@ select:focus-visible {
   border-color: var(--app-accent) !important;
 }
 
-/* Form labels */
-label {
+/* Form labels — scoped to .cui-label to avoid polluting host apps */
+.cui-label {
   text-transform: uppercase;
   font-weight: 600;
   font-size: 0.75rem;

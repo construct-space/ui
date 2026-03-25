@@ -90,7 +90,7 @@ const initials = computed(() => {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(18, 18, 30, 0.92);
+  background: color-mix(in srgb, var(--app-background) 92%, transparent);
   backdrop-filter: blur(16px);
 }
 
