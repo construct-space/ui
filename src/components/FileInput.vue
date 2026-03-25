@@ -52,6 +52,16 @@ function onDrop(e: DragEvent) {
   handleFiles(e.dataTransfer?.files ?? null)
 }
 
+function onDragOver() {
+  if (!props.disabled) {
+    dragging.value = true
+  }
+}
+
+function onDragLeave() {
+  dragging.value = false
+}
+
 function onChange(e: Event) {
   handleFiles((e.target as HTMLInputElement).files)
 }
@@ -80,8 +90,8 @@ const displayName = computed(() => {
     ]"
     @click="onClick"
     @drop.prevent="onDrop"
-    @dragover.prevent="dragging = true"
-    @dragleave="dragging = false"
+    @dragover.prevent="onDragOver"
+    @dragleave="onDragLeave"
   >
     <Icon icon="lucide:upload" class="size-5 text-[var(--app-muted)]" />
     <p v-if="displayName" class="text-sm font-medium text-[var(--app-foreground)]">{{ displayName }}</p>

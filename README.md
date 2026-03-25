@@ -1,6 +1,6 @@
 # @construct-space/ui
 
-Vue 3 component library for Construct services. 43 production components, shared layouts, composables, and design tokens.
+Vue 3 component library for Construct services. Shared components, layouts, composables, and design tokens for apps, infra surfaces, and spaces.
 
 ## Install
 
@@ -19,13 +19,15 @@ npm install vue reka-ui @iconify/vue
 ## Usage
 
 ```ts
-// Import components individually
-import { CButton, CInput, CModal, CToast } from '@construct-space/ui'
-
-// Import shared styles (tokens + utility classes)
+// Always import shared styles once in your app entry.
+// No extra Tailwind setup is required in the consumer.
 import '@construct-space/ui/style.css'
 
-// Or register all components globally
+// Import components individually
+import { Button, Input, Modal, Notification, SplitPane } from '@construct-space/ui'
+
+// Or register all components globally with a C prefix:
+// CButton, CInput, CModal, CNotification, ...
 import { createApp } from 'vue'
 import ConstructUI from '@construct-space/ui'
 
@@ -33,16 +35,47 @@ const app = createApp(App)
 app.use(ConstructUI)
 ```
 
+## Tabs And Groups
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Tabs, Tab, Group, Button } from '@construct-space/ui'
+
+const activeTab = ref('developer')
+</script>
+
+<template>
+  <Tabs v-model="activeTab" variant="segmented">
+    <Tab label="Developer" value="developer">
+      <Group gap="sm">
+        <Button label="Install CLI" />
+        <Button label="Run Dev" variant="soft" />
+      </Group>
+    </Tab>
+
+    <Tab label="Environment" value="environment">
+      Runtime checks go here.
+    </Tab>
+  </Tabs>
+</template>
+```
+
+`Tabs` supports both patterns:
+- `:items="[{ label, value }]"` plus named slots
+- Declarative `<Tab label="..." value="...">...</Tab>` children
+
 ## Components
 
 | Category | Components |
 |----------|-----------|
-| **Form** | `CButton`, `CInput`, `CTextarea`, `CSelect`, `CSelectMenu`, `CCheckbox`, `CRadioGroup`, `CSwitch`, `CSlider`, `CColorPicker`, `CFormField` |
-| **Layout** | `CCard`, `CModal`, `CDrawer`, `CSlideover`, `CPopover`, `CDashboardPanel`, `CPanelSection`, `CPropRow`, `CSeparator`, `CScrollArea` |
-| **Data** | `CTable`, `CCalendar`, `CTree`, `CTimeline`, `CPagination` |
-| **Feedback** | `CAlert`, `CBadge`, `CChip`, `CProgress`, `CSkeleton`, `CEmpty`, `CToast` |
-| **Menu** | `CDropdown`, `CDropdownMenu`, `CDropdownMenuItem`, `CContextMenu` |
-| **Display** | `CIcon`, `CAvatar`, `CAccordion`, `CTabs`, `CTooltip`, `CKbd` |
+| **Form** | `Button`, `Input`, `Textarea`, `Select`, `SelectMenu`, `Autocomplete`, `DatePicker`, `FileInput`, `MultiSelect`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `ColorPicker`, `FormField`, `ToggleGroup` |
+| **Layout** | `Card`, `Modal`, `ConfirmationModal`, `Drawer`, `Slideover`, `Popover`, `DashboardPanel`, `PanelSection`, `PropRow`, `Separator`, `ScrollArea`, `SplitPane`, `Group` |
+| **Data** | `Table`, `Calendar`, `Tree`, `Timeline`, `Pagination` |
+| **Feedback** | `Alert`, `Badge`, `Chip`, `Progress`, `Skeleton`, `Empty`, `Notification` |
+| **Menu** | `Dropdown`, `DropdownMenu`, `DropdownMenuItem`, `ContextMenu`, `Tabs`, `Tab` |
+| **Display** | `Icon`, `Avatar`, `Accordion`, `Tooltip`, `Kbd`, `Breadcrumbs` |
+| **Shell** | `Sidebar3D`, `Toolbar3D`, `SidebarLayout`, `HeaderLayout` |
 
 ## Layouts
 
@@ -69,10 +102,10 @@ app.use(ConstructUI)
 ## Composables
 
 ```ts
-import { useToast, useAuth } from '@construct-space/ui'
+import { useNotification, useAuth } from '@construct-space/ui'
 
-// Toast notifications
-const { add, remove, clear } = useToast()
+// Notification state
+const { add, remove, clear } = useNotification()
 add({ title: 'Saved', color: 'success' })
 
 // Auth session management
@@ -81,6 +114,11 @@ const { user, login, logout, checkSession } = useAuth({
   loginPath: '/api/auth/login',
 })
 ```
+
+## Notes
+
+- Prefer `Notification` and `useNotification()`. They are the primary feedback API.
+- Import [`@construct-space/ui/style.css`](./dist/style.css) once per app. Components rely on that stylesheet for tokens and generated utility CSS.
 
 ## Theming
 

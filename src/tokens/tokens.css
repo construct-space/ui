@@ -7,6 +7,20 @@
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme static {
+  --font-sans: 'Rubik', ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-foreground: var(--app-accent-foreground);
+  --color-app-background: var(--app-background);
+  --color-app-border: var(--app-border);
+  --color-app-foreground: var(--app-foreground);
+  --color-app-muted: var(--app-muted);
+}
 
 :root {
   /* Core colors — light mode defaults */

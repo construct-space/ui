@@ -35,22 +35,23 @@ const emit = defineEmits<{
 const open = ref(false)
 const query = ref('')
 
-const normalizedOptions = computed((): MultiSelectOption[] => {
+function getNormalizedOptions(): MultiSelectOption[] {
   return (props.options ?? []).map(opt =>
     typeof opt === 'string' ? { label: opt, value: opt } : opt as MultiSelectOption
   )
-})
+}
 
-const filtered = computed(() => {
+function getFilteredOptions(): MultiSelectOption[] {
   const q = query.value.toLowerCase().trim()
-  if (!q) return normalizedOptions.value
-  return normalizedOptions.value.filter(o => o.label.toLowerCase().includes(q))
-})
+  const options = getNormalizedOptions()
+  if (!q) return options
+  return options.filter(o => o.label.toLowerCase().includes(q))
+}
 
-const selectedLabels = computed(() => {
+const selectedItems = computed(() => {
   return (props.modelValue ?? []).map(v => {
-    const opt = normalizedOptions.value.find(o => o.value === v)
-    return opt?.label ?? v
+    const opt = getNormalizedOptions().find(o => o.value === v)
+    return { value: v, label: opt?.label ?? v }
   })
 })
 
@@ -79,6 +80,16 @@ function onBlur() {
   setTimeout(() => { open.value = false; query.value = '' }, 150)
 }
 
+function openMenu() {
+  if (!props.disabled) {
+    open.value = true
+  }
+}
+
+function focusSearch() {
+  open.value = true
+}
+
 const sizeClasses: Record<string, string> = { xs: 'text-xs', sm: 'text-xs', md: 'text-sm', lg: 'text-base' }
 </script>
 
@@ -91,16 +102,16 @@ const sizeClasses: Record<string, string> = { xs: 'text-xs', sm: 'text-xs', md: 
         open ? 'border-[var(--app-accent)]' : 'hover:border-[var(--app-muted)]/50',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
       ]"
-      @click="!disabled && (open = true)"
+      @click="openMenu"
     >
       <!-- Chips -->
       <span
-        v-for="(label, i) in selectedLabels"
-        :key="modelValue[i]"
+        v-for="item in selectedItems"
+        :key="item.value"
         class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-[color-mix(in_srgb,var(--app-accent)_12%,transparent)] text-[var(--app-accent)]"
       >
-        {{ label }}
-        <button class="hover:text-[var(--app-foreground)]" @click.stop="removeChip(modelValue[i])">
+        {{ item.label }}
+        <button class="hover:text-[var(--app-foreground)]" @click.stop="removeChip(item.value)">
           <Icon icon="lucide:x" class="size-2.5" />
         </button>
       </span>
@@ -109,12 +120,12 @@ const sizeClasses: Record<string, string> = { xs: 'text-xs', sm: 'text-xs', md: 
       <input
         v-if="searchable && open"
         :class="['flex-1 min-w-[60px] bg-transparent outline-none text-[var(--app-foreground)] placeholder:text-[var(--app-muted)]/50', sizeClasses[size]]"
-        :placeholder="modelValue.length ? '' : placeholder"
+        :placeholder="modelValue?.length ? '' : placeholder"
         v-model="query"
         @blur="onBlur"
-        @focus="open = true"
+        @focus="focusSearch"
       />
-      <span v-else-if="!modelValue.length" :class="['text-[var(--app-muted)]/50', sizeClasses[size]]">{{ placeholder }}</span>
+      <span v-else-if="!modelValue?.length" :class="['text-[var(--app-muted)]/50', sizeClasses[size]]">{{ placeholder }}</span>
 
       <Icon icon="lucide:chevron-down" class="ml-auto shrink-0 size-3 text-[var(--app-muted)]" />
     </div>
@@ -122,7 +133,7 @@ const sizeClasses: Record<string, string> = { xs: 'text-xs', sm: 'text-xs', md: 
     <Transition name="dropdown">
       <div v-if="open" class="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg">
         <div
-          v-for="opt in filtered"
+          v-for="opt in getFilteredOptions()"
           :key="opt.value"
           class="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer transition-colors"
           :class="[
@@ -136,7 +147,7 @@ const sizeClasses: Record<string, string> = { xs: 'text-xs', sm: 'text-xs', md: 
           </div>
           {{ opt.label }}
         </div>
-        <div v-if="filtered.length === 0" class="px-3 py-3 text-xs text-[var(--app-muted)] text-center">No results</div>
+        <div v-if="getFilteredOptions().length === 0" class="px-3 py-3 text-xs text-[var(--app-muted)] text-center">No results</div>
       </div>
     </Transition>
   </div>

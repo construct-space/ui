@@ -28,11 +28,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | string[]]
 }>()
 
-const normalizedOptions = computed((): ToggleOption[] => {
+function getOptions(): ToggleOption[] {
   return props.options.map(opt =>
     typeof opt === 'string' ? { label: opt, value: opt } : opt as ToggleOption
   )
-})
+}
 
 function isSelected(value: string): boolean {
   if (Array.isArray(props.modelValue)) return props.modelValue.includes(value)
@@ -66,7 +66,7 @@ const sizeClasses: Record<string, string> = {
     style="background: color-mix(in srgb, var(--app-muted) 8%, transparent)"
   >
     <button
-      v-for="opt in normalizedOptions"
+      v-for="opt in getOptions()"
       :key="opt.value"
       :class="[
         'rounded-md font-medium transition-colors cursor-pointer',

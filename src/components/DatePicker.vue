@@ -80,6 +80,10 @@ const calendarDays = computed(() => {
   return days
 })
 
+function getCalendarDays() {
+  return calendarDays.value
+}
+
 function isSelected(date: Date): boolean {
   if (!selectedDate.value) return false
   return date.toDateString() === selectedDate.value.toDateString()
@@ -103,6 +107,12 @@ function clear() {
   emit('update:modelValue', null)
 }
 
+function toggleOpen() {
+  if (!props.disabled) {
+    open.value = !open.value
+  }
+}
+
 const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 text-xs', md: 'py-1.5 text-sm', lg: 'py-2 text-base' }
 </script>
 
@@ -115,7 +125,7 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
         open ? 'border-[var(--app-accent)]' : 'hover:border-[var(--app-muted)]/50',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
       ]"
-      @click="!disabled && (open = !open)"
+      @click="toggleOpen"
     >
       <Icon icon="lucide:calendar" class="ml-2 shrink-0 size-3.5 text-[var(--app-muted)]" />
       <span :class="['flex-1 px-2.5 truncate', sizeClasses[size], modelValue ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50']">
@@ -147,7 +157,7 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
         <!-- Days grid -->
         <div class="grid grid-cols-7 gap-0.5">
           <button
-            v-for="(day, i) in calendarDays"
+            v-for="(day, i) in getCalendarDays()"
             :key="i"
             class="size-8 rounded text-xs transition-colors"
             :class="[

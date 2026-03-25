@@ -40,23 +40,24 @@ const open = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const highlightIndex = ref(-1)
 
-const normalizedOptions = computed((): AutocompleteOption[] => {
+function getNormalizedOptions(): AutocompleteOption[] {
   return (props.options ?? []).map(opt =>
     typeof opt === 'string' ? { label: opt, value: opt } : opt as AutocompleteOption
   )
-})
+}
 
-const filtered = computed(() => {
+function getFilteredOptions(): AutocompleteOption[] {
   const q = query.value.toLowerCase().trim()
-  if (!q) return normalizedOptions.value
-  return normalizedOptions.value.filter(o => o.label.toLowerCase().includes(q))
-})
+  const options = getNormalizedOptions()
+  if (!q) return options
+  return options.filter(o => o.label.toLowerCase().includes(q))
+}
 
-const selectedLabel = computed(() => {
+function getSelectedLabel(): string {
   if (props.modelValue == null) return ''
-  const opt = normalizedOptions.value.find(o => o.value === props.modelValue)
+  const opt = getNormalizedOptions().find(o => o.value === props.modelValue)
   return opt?.label ?? String(props.modelValue)
-})
+}
 
 function onFocus() {
   open.value = true
@@ -81,19 +82,25 @@ function clear() {
 }
 
 function onKeydown(e: KeyboardEvent) {
+  const filteredOptions = getFilteredOptions()
   if (e.key === 'ArrowDown') {
     e.preventDefault()
-    highlightIndex.value = Math.min(highlightIndex.value + 1, filtered.value.length - 1)
+    highlightIndex.value = Math.min(highlightIndex.value + 1, filteredOptions.length - 1)
   } else if (e.key === 'ArrowUp') {
     e.preventDefault()
     highlightIndex.value = Math.max(highlightIndex.value - 1, 0)
   } else if (e.key === 'Enter' && highlightIndex.value >= 0) {
     e.preventDefault()
-    select(filtered.value[highlightIndex.value])
+    const option = filteredOptions[highlightIndex.value]
+    if (option) select(option)
   } else if (e.key === 'Escape') {
     open.value = false
     inputRef.value?.blur()
   }
+}
+
+function onInput(event: Event) {
+  query.value = (event.target as HTMLInputElement).value
 }
 
 const sizeClasses: Record<string, string> = {
@@ -118,10 +125,10 @@ const sizeClasses: Record<string, string> = {
       <input
         ref="inputRef"
         :class="['flex-1 min-w-0 bg-transparent text-[var(--app-foreground)] outline-none placeholder:text-[var(--app-muted)]/50 px-2.5', sizeClasses[size]]"
-        :value="open ? query : selectedLabel"
+        :value="open ? query : getSelectedLabel()"
         :placeholder="placeholder"
         :disabled="disabled"
-        @input="query = ($event.target as HTMLInputElement).value"
+        @input="onInput"
         @focus="onFocus"
         @blur="onBlur"
         @keydown="onKeydown"
@@ -136,7 +143,7 @@ const sizeClasses: Record<string, string> = {
     <Transition name="dropdown">
       <div v-if="open" class="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg">
         <div
-          v-for="(opt, i) in filtered"
+          v-for="(opt, i) in getFilteredOptions()"
           :key="String(opt.value)"
           class="px-3 py-1.5 text-sm cursor-pointer transition-colors"
           :class="[
@@ -148,7 +155,7 @@ const sizeClasses: Record<string, string> = {
         >
           {{ opt.label }}
         </div>
-        <div v-if="filtered.length === 0" class="px-3 py-3 text-xs text-[var(--app-muted)] text-center">{{ emptyText }}</div>
+        <div v-if="getFilteredOptions().length === 0" class="px-3 py-3 text-xs text-[var(--app-muted)] text-center">{{ emptyText }}</div>
       </div>
     </Transition>
   </div>
