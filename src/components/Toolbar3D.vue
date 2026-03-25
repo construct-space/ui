@@ -2,7 +2,7 @@
 /**
  * Toolbar3D — Construct UI
  * 3D rotating toolbar that flips on page transitions.
- * Shows breadcrumb + action buttons on front, new page content on bottom.
+ * Rounded-right-only, inset margins, surface background.
  */
 
 export interface ToolbarAction {
@@ -49,21 +49,23 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="relative h-11 select-none ml-[22px] mr-[22px] mt-3 perspective-[1000px]" @contextmenu.prevent>
+  <div class="relative h-11 select-none ml-[22px] mr-[22px] mt-3" style="perspective: 1000px" @contextmenu.prevent>
     <div
-      class="w-full h-full relative transform-3d"
+      class="w-full h-full relative"
       :class="rotating ? 'transition-transform duration-500 ease-in' : ''"
-      :style="{ transform: rotating ? 'rotateX(-90deg)' : 'rotateX(0deg)' }"
+      :style="{ transformStyle: 'preserve-3d', transform: rotating ? 'rotateX(-90deg)' : 'rotateX(0deg)' }"
     >
       <!-- Front Panel -->
-      <div class="toolbar-panel absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border bg-[var(--app-card-bg)]" style="border-color: var(--app-border)">
+      <div class="toolbar-panel absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]">
         <!-- Space icon -->
         <div v-if="spaceIcon" class="size-5 rounded flex items-center justify-center shrink-0" :style="`background: color-mix(in srgb, ${spaceColor || 'var(--app-accent)'} 15%, transparent)`">
-          <component :is="'Icon'" :name="spaceIcon" class="size-3.5" :style="`color: ${spaceColor || 'var(--app-accent)'}`" />
+          <slot name="space-icon">
+            <component :is="'Icon'" :name="spaceIcon" class="size-3.5" :style="`color: ${spaceColor || 'var(--app-accent)'}`" />
+          </slot>
         </div>
 
         <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-1.5 text-sm">
+        <nav class="flex items-center gap-1.5 text-sm ml-1">
           <template v-for="(crumb, i) in breadcrumbs" :key="i">
             <svg v-if="i > 0" class="size-3 shrink-0" style="color: var(--app-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             <button
@@ -83,7 +85,7 @@ const emit = defineEmits<{
 
         <!-- Action buttons -->
         <template v-if="actions.length">
-          <div class="w-px h-5" style="background: var(--app-border)" />
+          <div class="w-px h-5 bg-[var(--app-border)]" />
           <div class="flex items-center gap-0.5">
             <button
               v-for="action in actions"
@@ -103,8 +105,8 @@ const emit = defineEmits<{
       </div>
 
       <!-- Bottom Panel (rotation target) -->
-      <div class="toolbar-panel toolbar-panel--bottom absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border bg-[var(--app-card-bg)]" style="border-color: var(--app-border)">
-        <nav class="flex items-center gap-1.5 text-sm">
+      <div class="toolbar-panel toolbar-panel--bottom absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]">
+        <nav class="flex items-center gap-1.5 text-sm ml-1">
           <template v-for="(crumb, i) in nextBreadcrumbs" :key="i">
             <svg v-if="i > 0" class="size-3 shrink-0" style="color: var(--app-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             <span :style="i === nextBreadcrumbs.length - 1 ? 'color: var(--app-foreground); font-weight: 500' : 'color: var(--app-muted)'">{{ crumb.label }}</span>
@@ -112,7 +114,7 @@ const emit = defineEmits<{
         </nav>
         <div class="flex-1" />
         <template v-if="nextActions.length">
-          <div class="w-px h-5" style="background: var(--app-border)" />
+          <div class="w-px h-5 bg-[var(--app-border)]" />
           <div class="flex items-center gap-0.5">
             <button v-for="action in nextActions" :key="action.id" class="toolbar-btn" :class="action.active ? 'active' : ''" :title="action.label">
               <component :is="'Icon'" :name="action.icon" class="size-4" />
