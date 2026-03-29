@@ -1,15 +1,9 @@
 <script setup lang="ts">
 /**
- * Accordion - Nuxt UI v3 compatible accordion
+ * Accordion - Plain implementation (no reka-ui)
  */
+import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
-import {
-  AccordionRoot,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  AccordionHeader,
-} from 'reka-ui'
 
 export interface AccordionOption {
   label: string
@@ -22,7 +16,7 @@ export interface AccordionOption {
   [key: string]: unknown
 }
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   items?: AccordionOption[]
   type?: 'single' | 'multiple'
   defaultValue?: string | string[]
@@ -31,6 +25,38 @@ withDefaults(defineProps<{
   items: () => [],
   type: 'single',
 })
+
+function initOpenItems(): Set<string> {
+  const set = new Set<string>()
+  if (props.defaultValue) {
+    const vals = Array.isArray(props.defaultValue) ? props.defaultValue : [props.defaultValue]
+    vals.forEach(v => set.add(v))
+  }
+  props.items.forEach((item, i) => {
+    if (item.defaultOpen) set.add(item.value || String(i))
+  })
+  return set
+}
+
+const openItems = ref<Set<string>>(initOpenItems())
+
+function isOpen(key: string) {
+  return openItems.value.has(key)
+}
+
+function toggle(key: string, disabled?: boolean) {
+  if (disabled) return
+  const next = new Set(openItems.value)
+  if (next.has(key)) {
+    next.delete(key)
+  } else {
+    if (props.type === 'single') {
+      next.clear()
+    }
+    next.add(key)
+  }
+  openItems.value = next
+}
 
 function toIconify(name: string) {
   if (name.startsWith('i-')) {
@@ -44,42 +70,58 @@ function toIconify(name: string) {
 </script>
 
 <template>
-  <AccordionRoot
-    :type="type as 'single'"
-    :default-value="defaultValue"
-    class="w-full"
-  >
-    <AccordionItem
+  <div class="w-full">
+    <div
       v-for="(item, i) in items"
       :key="item.value || String(i)"
-      :value="item.value || String(i)"
-      :disabled="item.disabled"
       class="border-b border-[var(--app-border)]"
     >
-      <AccordionHeader>
-        <AccordionTrigger
-          :class="ui?.trigger || 'flex w-full items-center justify-between py-3 text-sm font-medium text-[var(--app-foreground)] hover:underline [&[data-state=open]>svg]:rotate-180'"
-        >
-          <div class="flex items-center gap-2">
-            <slot name="leading" :item="item">
-              <Icon v-if="item.icon" :icon="toIconify(item.icon)" class="size-4" />
-            </slot>
-            {{ item.label }}
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 transition-transform duration-200"><polyline points="6 9 12 15 18 9" /></svg>
-        </AccordionTrigger>
-      </AccordionHeader>
-      <AccordionContent class="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-        <div class="text-[var(--app-muted)]">
-          <slot name="body" :item="item">
-            <div class="pb-3">
-              <slot :name="item.slot || item.value || String(i)" :item="item">
-                {{ item.content }}
-              </slot>
-            </div>
+      <button
+        :class="ui?.trigger || 'flex w-full items-center justify-between py-3 text-sm font-medium text-[var(--app-foreground)] hover:underline'"
+        :disabled="item.disabled"
+        @click="toggle(item.value || String(i), item.disabled)"
+      >
+        <div class="flex items-center gap-2">
+          <slot name="leading" :item="item">
+            <Icon v-if="item.icon" :icon="toIconify(item.icon)" class="size-4" />
           </slot>
+          {{ item.label }}
         </div>
-      </AccordionContent>
-    </AccordionItem>
-  </AccordionRoot>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16" height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="shrink-0 transition-transform duration-200"
+          :class="isOpen(item.value || String(i)) ? 'rotate-180' : ''"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      <Transition name="accordion">
+        <div v-if="isOpen(item.value || String(i))" class="overflow-hidden text-sm">
+          <div class="text-[var(--app-muted)]">
+            <slot name="body" :item="item">
+              <div class="pb-3">
+                <slot :name="item.slot || item.value || String(i)" :item="item">
+                  {{ item.content }}
+                </slot>
+              </div>
+            </slot>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  </div>
 </template>
+
+<style>
+.accordion-enter-active { transition: all 0.2s ease; }
+.accordion-leave-active { transition: all 0.15s ease; }
+.accordion-enter-from, .accordion-leave-to { opacity: 0; max-height: 0; }
+.accordion-enter-to, .accordion-leave-from { opacity: 1; max-height: 500px; }
+</style>

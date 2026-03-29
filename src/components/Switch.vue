@@ -74,7 +74,7 @@ function toggle() {
   </label>
 </template>
 
-<style scoped>
+<style>
 .cui-switch {
   display: inline-flex;
   align-items: center;

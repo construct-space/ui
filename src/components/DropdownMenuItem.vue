@@ -4,7 +4,6 @@
  * Used when DropdownMenu content is built manually (not via items prop)
  */
 import { Icon } from '@iconify/vue'
-import { DropdownMenuItem } from 'reka-ui'
 
 withDefaults(defineProps<{
   label?: string
@@ -29,15 +28,24 @@ function toIconify(name: string) {
   }
   return name
 }
+
+function onClick() {
+  emit('select')
+}
 </script>
 
 <template>
-  <DropdownMenuItem
-    :disabled="disabled"
-    class="relative flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[var(--app-foreground)] outline-none cursor-pointer select-none data-[highlighted]:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)] data-[highlighted]:text-[var(--app-accent)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-    @select="emit('select')"
+  <div
+    :class="[
+      'relative flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[var(--app-foreground)] outline-none cursor-pointer select-none',
+      'hover:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)] hover:text-[var(--app-accent)]',
+      disabled ? 'pointer-events-none opacity-50' : '',
+    ]"
+    role="menuitem"
+    :aria-disabled="disabled"
+    @click="onClick"
   >
     <Icon v-if="icon" :icon="toIconify(icon)" class="size-4 shrink-0 text-[var(--app-muted)]" />
     <slot>{{ label }}</slot>
-  </DropdownMenuItem>
+  </div>
 </template>

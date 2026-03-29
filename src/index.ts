@@ -75,6 +75,7 @@ export { useFormValidation, required, minLength, maxLength, email, pattern } fro
 export { useKeyboard, useHotkey } from './composables/useKeyboard'
 export type { KeyBinding } from './composables/useKeyboard'
 export { useClickOutside } from './composables/useClickOutside'
+export { useEscapeKey } from './composables/useEscapeKey'
 export { useLocalStorage } from './composables/useLocalStorage'
 export { useAsync } from './composables/useAsync'
 export type { AsyncState } from './composables/useAsync'

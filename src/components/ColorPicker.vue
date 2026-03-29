@@ -4,12 +4,6 @@
  * Self-contained color picker with HSV square, hue slider, optional alpha,
  * hex input, and preset swatches. No external color libraries.
  */
-import {
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverPortal,
-  PopoverContent,
-} from 'reka-ui'
 
 // ---------------------------------------------------------------------------
 // Props & Emits
@@ -109,6 +103,9 @@ function parseHex(hex: string): RGBA {
 // ---------------------------------------------------------------------------
 
 const popoverOpen = ref(false)
+const triggerRef = ref<HTMLElement | null>(null)
+const panelRef = ref<HTMLElement | null>(null)
+const panelStyle = ref<{ top: string; left: string }>({ top: '0px', left: '0px' })
 
 const hsva = reactive<HSVA>({ h: 0, s: 1, v: 1, a: 1 })
 const hexInput = ref('')
@@ -143,6 +140,66 @@ function emitColor() {
   emit('update:modelValue', hex)
   emit('change', hex)
 }
+
+// ---------------------------------------------------------------------------
+// Popover positioning
+// ---------------------------------------------------------------------------
+
+function positionPanel() {
+  nextTick(() => {
+    const triggerEl = triggerRef.value
+    const panelEl = panelRef.value
+    if (!triggerEl || !panelEl) return
+    const rect = triggerEl.getBoundingClientRect()
+    const contentRect = panelEl.getBoundingClientRect()
+    let top = rect.bottom + 6
+    let left = rect.left
+    if (top + contentRect.height > window.innerHeight - 8) {
+      top = rect.top - contentRect.height - 6
+    }
+    if (left + contentRect.width > window.innerWidth - 8) {
+      left = window.innerWidth - contentRect.width - 8
+    }
+    if (left < 8) left = 8
+    panelStyle.value = { top: `${top}px`, left: `${left}px` }
+  })
+}
+
+function togglePopover() {
+  if (props.disabled) return
+  popoverOpen.value = !popoverOpen.value
+  if (popoverOpen.value) {
+    positionPanel()
+    nextTick(() => {
+      document.addEventListener('mousedown', onClickOutside)
+      document.addEventListener('keydown', onEscapeKey)
+    })
+  } else {
+    cleanupListeners()
+  }
+}
+
+function closePopover() {
+  popoverOpen.value = false
+  cleanupListeners()
+}
+
+function cleanupListeners() {
+  document.removeEventListener('mousedown', onClickOutside)
+  document.removeEventListener('keydown', onEscapeKey)
+}
+
+function onClickOutside(e: MouseEvent) {
+  if (triggerRef.value?.contains(e.target as Node)) return
+  if (panelRef.value?.contains(e.target as Node)) return
+  closePopover()
+}
+
+function onEscapeKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') closePopover()
+}
+
+onUnmounted(cleanupListeners)
 
 // ---------------------------------------------------------------------------
 // Saturation / Brightness square interaction
@@ -356,134 +413,133 @@ const svHeight: Record<string, string> = {
 </script>
 
 <template>
-  <PopoverRoot v-model:open="popoverOpen">
-    <PopoverTrigger as-child>
-      <!-- Swatch button -->
-      <button
-        type="button"
-        :disabled="disabled"
-        :class="[
-          'inline-flex items-center justify-center border border-[var(--app-border)] transition-colors duration-150 cursor-pointer',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-1',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'hover:border-[var(--app-muted)]',
-          swatchSize[size],
-          swatchRound[size],
-        ]"
-        :style="{ backgroundColor: swatchBg }"
-        :aria-label="`Color picker: ${currentHex()}`"
+  <!-- Swatch button (trigger) -->
+  <div ref="triggerRef" class="inline-flex">
+    <button
+      type="button"
+      :disabled="disabled"
+      :class="[
+        'inline-flex items-center justify-center border border-[var(--app-border)] transition-colors duration-150 cursor-pointer',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-1',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'hover:border-[var(--app-muted)]',
+        swatchSize[size],
+        swatchRound[size],
+      ]"
+      :style="{ backgroundColor: swatchBg }"
+      :aria-label="`Color picker: ${currentHex()}`"
+      @click="togglePopover"
+    >
+      <!-- Checkerboard behind swatch for alpha visibility -->
+      <span
+        v-if="alpha"
+        class="absolute inset-0 -z-10 rounded-[inherit]"
+        style="background-image: conic-gradient(#80808040 0 25%, transparent 0 50%, #80808040 0 75%, transparent 0); background-size: 8px 8px;"
+      />
+    </button>
+  </div>
+
+  <Teleport to="body">
+    <div
+      v-if="popoverOpen"
+      ref="panelRef"
+      :style="{ position: 'fixed', ...panelStyle }"
+      :class="[
+        'z-[100] rounded-lg border border-[var(--app-border)] bg-[var(--app-background)] shadow-xl p-3 space-y-3',
+        'animate-in fade-in-0 zoom-in-95',
+        panelWidth[size],
+      ]"
+    >
+      <!-- Saturation / Brightness square -->
+      <div
+        ref="svBoxRef"
+        :class="['relative w-full rounded-md cursor-crosshair select-none overflow-hidden', svHeight[size]]"
+        :style="{ backgroundColor: hueColor }"
+        @mousedown="onSVDown"
+        @touchstart.passive="onSVDown"
       >
-        <!-- Checkerboard behind swatch for alpha visibility -->
-        <span
-          v-if="alpha"
-          class="absolute inset-0 -z-10 rounded-[inherit]"
+        <!-- White gradient (left to right) -->
+        <div class="absolute inset-0" style="background: linear-gradient(to right, #fff, transparent);" />
+        <!-- Black gradient (top to bottom) -->
+        <div class="absolute inset-0" style="background: linear-gradient(to bottom, transparent, #000);" />
+        <!-- Thumb -->
+        <div
+          class="absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
+          :style="svThumbStyle"
+        />
+      </div>
+
+      <!-- Hue slider -->
+      <div
+        ref="hueRef"
+        class="relative w-full h-3 rounded-full cursor-pointer select-none"
+        style="background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);"
+        @mousedown="onHueDown"
+        @touchstart.passive="onHueDown"
+      >
+        <div
+          class="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
+          :style="{ ...hueThumbStyle, backgroundColor: hueColor }"
+        />
+      </div>
+
+      <!-- Alpha slider -->
+      <div
+        v-if="alpha"
+        ref="alphaRef"
+        class="relative w-full h-3 rounded-full cursor-pointer select-none overflow-hidden"
+        @mousedown="onAlphaDown"
+        @touchstart.passive="onAlphaDown"
+      >
+        <!-- Checkerboard -->
+        <div
+          class="absolute inset-0 rounded-full"
           style="background-image: conic-gradient(#80808040 0 25%, transparent 0 50%, #80808040 0 75%, transparent 0); background-size: 8px 8px;"
         />
-      </button>
-    </PopoverTrigger>
-
-    <PopoverPortal>
-      <PopoverContent
-        side="bottom"
-        :side-offset="6"
-        align="start"
-        :class="[
-          'z-[100] rounded-lg border border-[var(--app-border)] bg-[var(--app-background)] shadow-xl p-3 space-y-3',
-          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-          panelWidth[size],
-        ]"
-      >
-        <!-- Saturation / Brightness square -->
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0 rounded-full" :style="{ background: alphaGradient }" />
+        <!-- Thumb -->
         <div
-          ref="svBoxRef"
-          :class="['relative w-full rounded-md cursor-crosshair select-none overflow-hidden', svHeight[size]]"
-          :style="{ backgroundColor: hueColor }"
-          @mousedown="onSVDown"
-          @touchstart.passive="onSVDown"
-        >
-          <!-- White gradient (left to right) -->
-          <div class="absolute inset-0" style="background: linear-gradient(to right, #fff, transparent);" />
-          <!-- Black gradient (top to bottom) -->
-          <div class="absolute inset-0" style="background: linear-gradient(to bottom, transparent, #000);" />
-          <!-- Thumb -->
-          <div
-            class="absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
-            :style="svThumbStyle"
-          />
-        </div>
+          class="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
+          :style="alphaThumbStyle"
+        />
+      </div>
 
-        <!-- Hue slider -->
+      <!-- Hex input + preview -->
+      <div class="flex items-center gap-2">
         <div
-          ref="hueRef"
-          class="relative w-full h-3 rounded-full cursor-pointer select-none"
-          style="background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);"
-          @mousedown="onHueDown"
-          @touchstart.passive="onHueDown"
-        >
-          <div
-            class="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
-            :style="{ ...hueThumbStyle, backgroundColor: hueColor }"
-          />
-        </div>
-
-        <!-- Alpha slider -->
+          class="shrink-0 size-8 rounded-md border border-[var(--app-border)]"
+          :style="{ backgroundColor: swatchBg }"
+        />
         <div
-          v-if="alpha"
-          ref="alphaRef"
-          class="relative w-full h-3 rounded-full cursor-pointer select-none overflow-hidden"
-          @mousedown="onAlphaDown"
-          @touchstart.passive="onAlphaDown"
+          class="flex-1 flex items-center rounded-md border border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-background)_80%,var(--app-canvas-bg)_20%)] overflow-hidden"
         >
-          <!-- Checkerboard -->
-          <div
-            class="absolute inset-0 rounded-full"
-            style="background-image: conic-gradient(#80808040 0 25%, transparent 0 50%, #80808040 0 75%, transparent 0); background-size: 8px 8px;"
-          />
-          <!-- Gradient overlay -->
-          <div class="absolute inset-0 rounded-full" :style="{ background: alphaGradient }" />
-          <!-- Thumb -->
-          <div
-            class="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] pointer-events-none"
-            :style="alphaThumbStyle"
-          />
-        </div>
-
-        <!-- Hex input + preview -->
-        <div class="flex items-center gap-2">
-          <div
-            class="shrink-0 size-8 rounded-md border border-[var(--app-border)]"
-            :style="{ backgroundColor: swatchBg }"
-          />
-          <div
-            class="flex-1 flex items-center rounded-md border border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-background)_80%,var(--app-canvas-bg)_20%)] overflow-hidden"
-          >
-            <span class="shrink-0 px-2 py-1 text-xs text-[var(--app-muted)] font-medium select-none border-r border-[var(--app-border)]">#</span>
-            <input
-              type="text"
-              :value="hexInput"
-              :maxlength="alpha ? 8 : 6"
-              class="flex-1 min-w-0 bg-transparent text-[var(--app-foreground)] text-xs px-2 py-1 outline-none font-mono uppercase placeholder:text-[var(--app-muted)]/50"
-              :placeholder="alpha ? 'FF2D55FF' : 'FF2D55'"
-              :disabled="disabled"
-              @input="onHexInput"
-            />
-          </div>
-        </div>
-
-        <!-- Preset swatches -->
-        <div v-if="presets.length > 0" class="flex flex-wrap gap-1.5">
-          <button
-            v-for="color in presets"
-            :key="color"
-            type="button"
+          <span class="shrink-0 px-2 py-1 text-xs text-[var(--app-muted)] font-medium select-none border-r border-[var(--app-border)]">#</span>
+          <input
+            type="text"
+            :value="hexInput"
+            :maxlength="alpha ? 8 : 6"
+            class="flex-1 min-w-0 bg-transparent text-[var(--app-foreground)] text-xs px-2 py-1 outline-none font-mono uppercase placeholder:text-[var(--app-muted)]/50"
+            :placeholder="alpha ? 'FF2D55FF' : 'FF2D55'"
             :disabled="disabled"
-            class="size-6 rounded border border-[var(--app-border)] cursor-pointer transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
-            :style="{ backgroundColor: color }"
-            :title="color"
-            @click="selectPreset(color)"
+            @input="onHexInput"
           />
         </div>
-      </PopoverContent>
-    </PopoverPortal>
-  </PopoverRoot>
+      </div>
+
+      <!-- Preset swatches -->
+      <div v-if="presets.length > 0" class="flex flex-wrap gap-1.5">
+        <button
+          v-for="color in presets"
+          :key="color"
+          type="button"
+          :disabled="disabled"
+          class="size-6 rounded border border-[var(--app-border)] cursor-pointer transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+          :style="{ backgroundColor: color }"
+          :title="color"
+          @click="selectPreset(color)"
+        />
+      </div>
+    </div>
+  </Teleport>
 </template>

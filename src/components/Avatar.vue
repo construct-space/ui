@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { AvatarRoot, AvatarImage, AvatarFallback } from 'reka-ui'
+/**
+ * Avatar - Plain implementation (no reka-ui)
+ */
+import { ref, computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -23,27 +25,34 @@ const sizeClasses: Record<string, string> = {
   lg: 'h-10 w-10 text-sm',
 }
 
+const imgFailed = ref(false)
+
 const classes = computed(() => {
   return [
     'inline-flex shrink-0 items-center justify-center rounded-full overflow-hidden',
     sizeClasses[props.size],
   ]
 })
+
+function onError() {
+  imgFailed.value = true
+}
 </script>
 
 <template>
-  <AvatarRoot :class="classes">
-    <AvatarImage
-      v-if="src"
+  <span :class="classes">
+    <img
+      v-if="src && !imgFailed"
       :src="src"
       :alt="alt"
       class="h-full w-full object-cover"
+      @error="onError"
     />
-    <AvatarFallback
+    <span
+      v-else
       class="flex h-full w-full items-center justify-center bg-[color-mix(in_srgb,var(--app-accent)_15%,transparent)] text-[var(--app-accent)] font-medium"
-      :delay-ms="600"
     >
       {{ fallback }}
-    </AvatarFallback>
-  </AvatarRoot>
+    </span>
+  </span>
 </template>

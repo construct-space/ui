@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * Tabs - Plain implementation (no reka-ui)
+ */
 import {
   Comment,
   Fragment,
@@ -11,12 +14,6 @@ import {
   type VNode,
   useSlots,
 } from 'vue'
-import {
-  TabsRoot,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from 'reka-ui'
 import Tab from './Tab.vue'
 
 export interface TabItem {
@@ -121,31 +118,44 @@ const listClass = computed(() => {
   return 'flex gap-1 border-b border-[var(--app-border)]'
 })
 
-const triggerClass = computed(() => {
+function triggerClasses(item: ResolvedTab) {
+  const isActive = props.modelValue === item.value
+  const base = 'inline-flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer'
+  const disabledCls = item.disabled ? 'pointer-events-none opacity-50' : ''
+
   if (props.variant === 'segmented') {
-    return 'inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-medium text-[var(--app-muted)] transition-colors cursor-pointer hover:text-[var(--app-foreground)] data-[state=active]:bg-app-accent data-[state=active]:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
+    const activeCls = isActive ? 'bg-app-accent text-white' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
+    return [base, 'rounded-md px-4 py-1.5', activeCls, disabledCls]
   }
-  return 'inline-flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2 text-sm font-medium text-[var(--app-muted)] transition-colors cursor-pointer hover:text-[var(--app-foreground)] -mb-px data-[state=active]:text-[var(--app-accent)] data-[state=active]:border-[var(--app-accent)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
-})
+
+  const activeCls = isActive
+    ? 'text-[var(--app-accent)] border-[var(--app-accent)]'
+    : 'border-transparent text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
+  return [base, 'border-b-2 px-3 py-2 -mb-px', activeCls, disabledCls]
+}
 
 const contentClass = computed(() => props.variant === 'segmented'
   ? 'mt-4 focus-visible:outline-none'
   : 'mt-3 focus-visible:outline-none'
 )
+
+function selectTab(item: ResolvedTab) {
+  if (item.disabled) return
+  emit('update:modelValue', item.value)
+}
 </script>
 
 <template>
-  <TabsRoot
-    :model-value="modelValue"
-    @update:model-value="emit('update:modelValue', $event as string)"
-  >
-    <TabsList :class="listClass">
-      <TabsTrigger
+  <div>
+    <div :class="listClass" role="tablist">
+      <button
         v-for="item in resolvedTabs"
         :key="item.value"
-        :value="item.value"
+        role="tab"
+        :aria-selected="modelValue === item.value"
         :disabled="item.disabled"
-        :class="triggerClass"
+        :class="triggerClasses(item)"
+        @click="selectTab(item)"
       >
         <component
           :is="item.icon"
@@ -153,17 +163,18 @@ const contentClass = computed(() => props.variant === 'segmented'
           class="h-4 w-4"
         />
         {{ item.label }}
-      </TabsTrigger>
-    </TabsList>
+      </button>
+    </div>
 
-    <TabsContent
-      v-for="item in resolvedTabs"
-      :key="item.value"
-      :value="item.value"
-      :class="contentClass"
-    >
-      <SlotContent v-if="item.content" :render="item.content" />
-      <slot v-else :name="item.value" />
-    </TabsContent>
-  </TabsRoot>
+    <template v-for="item in resolvedTabs" :key="item.value">
+      <div
+        v-if="modelValue === item.value"
+        role="tabpanel"
+        :class="contentClass"
+      >
+        <SlotContent v-if="item.content" :render="item.content" />
+        <slot v-else :name="item.value" />
+      </div>
+    </template>
+  </div>
 </template>

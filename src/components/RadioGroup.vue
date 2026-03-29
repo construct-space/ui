@@ -1,12 +1,7 @@
 <script setup lang="ts">
 /**
- * RadioGroup - Radio button group with default and card variants
+ * RadioGroup - Plain implementation (no reka-ui)
  */
-import {
-  RadioGroupRoot,
-  RadioGroupItem,
-  RadioGroupIndicator,
-} from 'reka-ui'
 
 export interface RadioOption {
   value: string
@@ -62,16 +57,18 @@ const sizeClasses = {
     cardPadding: 'p-4',
   },
 }
+
+function select(value: string) {
+  if (props.disabled) return
+  emit('update:modelValue', value)
+}
 </script>
 
 <template>
-  <RadioGroupRoot
-    :model-value="modelValue"
-    :disabled="disabled"
-    :orientation="orientation"
+  <div
+    role="radiogroup"
     class="flex"
     :class="orientation === 'vertical' ? 'flex-col gap-2' : 'flex-row flex-wrap gap-3'"
-    @update:model-value="emit('update:modelValue', $event as string)"
   >
     <!-- Default variant -->
     <template v-if="variant === 'default'">
@@ -84,19 +81,30 @@ const sizeClasses = {
           (option.disabled || disabled) ? 'opacity-50 cursor-not-allowed' : '',
         ]"
       >
-        <RadioGroupItem
-          :value="option.value"
-          :disabled="option.disabled || disabled"
-          class="shrink-0 rounded-full border border-[var(--app-border)] bg-[var(--app-background)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] data-[state=checked]:border-[var(--app-accent)]"
-          :class="sizeClasses[size].radio"
+        <span
+          class="shrink-0 rounded-full border transition-colors flex items-center justify-center"
+          :class="[
+            sizeClasses[size].radio,
+            modelValue === option.value
+              ? 'border-[var(--app-accent)]'
+              : 'border-[var(--app-border)] bg-[var(--app-background)]',
+          ]"
         >
-          <RadioGroupIndicator class="flex items-center justify-center w-full h-full relative">
-            <span
-              class="block rounded-full bg-[var(--app-accent)]"
-              :class="sizeClasses[size].dot"
-            />
-          </RadioGroupIndicator>
-        </RadioGroupItem>
+          <input
+            type="radio"
+            :name="'radio-group'"
+            :value="option.value"
+            :checked="modelValue === option.value"
+            :disabled="option.disabled || disabled"
+            class="sr-only"
+            @change="select(option.value)"
+          />
+          <span
+            v-if="modelValue === option.value"
+            class="block rounded-full bg-[var(--app-accent)]"
+            :class="sizeClasses[size].dot"
+          />
+        </span>
         <div class="flex flex-col">
           <span
             class="text-[var(--app-foreground)] leading-snug"
@@ -135,10 +143,8 @@ const sizeClasses = {
             : 'border-[var(--app-border)] bg-[var(--app-background)]',
         ]"
       >
-        <RadioGroupItem
-          :value="option.value"
-          :disabled="option.disabled || disabled"
-          class="shrink-0 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] data-[state=checked]:border-[var(--app-accent)]"
+        <span
+          class="shrink-0 rounded-full border transition-colors flex items-center justify-center"
           :class="[
             sizeClasses[size].radio,
             modelValue === option.value
@@ -146,13 +152,21 @@ const sizeClasses = {
               : 'border-[var(--app-border)] bg-[var(--app-background)]',
           ]"
         >
-          <RadioGroupIndicator class="flex items-center justify-center w-full h-full relative">
-            <span
-              class="block rounded-full bg-[var(--app-accent)]"
-              :class="sizeClasses[size].dot"
-            />
-          </RadioGroupIndicator>
-        </RadioGroupItem>
+          <input
+            type="radio"
+            :name="'radio-group'"
+            :value="option.value"
+            :checked="modelValue === option.value"
+            :disabled="option.disabled || disabled"
+            class="sr-only"
+            @change="select(option.value)"
+          />
+          <span
+            v-if="modelValue === option.value"
+            class="block rounded-full bg-[var(--app-accent)]"
+            :class="sizeClasses[size].dot"
+          />
+        </span>
         <div class="flex flex-col min-w-0">
           <span
             class="text-[var(--app-foreground)] leading-snug font-medium"
@@ -175,5 +189,5 @@ const sizeClasses = {
         </div>
       </label>
     </template>
-  </RadioGroupRoot>
+  </div>
 </template>
