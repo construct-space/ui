@@ -31,10 +31,12 @@ withDefaults(defineProps<{
           :side="content?.side || 'bottom'"
           :align="content?.align || 'center'"
           :side-offset="content?.sideOffset || 6"
-          class="z-[100] rounded-md px-2.5 py-1.5 text-xs font-medium bg-[var(--app-foreground)] text-[var(--app-background)] shadow-md animate-in fade-in-0 zoom-in-95"
+          class="pointer-events-none"
         >
-          {{ text }}
-          <TooltipArrow class="fill-[var(--app-foreground)]" :width="8" :height="4" />
+          <div class="rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg max-w-[250px] text-center" style="background-color: #4b4b4b">
+            {{ text }}
+          </div>
+          <TooltipArrow style="fill: #4b4b4b" :width="10" :height="5" />
         </TooltipContent>
       </TooltipPortal>
     </TooltipRoot>
