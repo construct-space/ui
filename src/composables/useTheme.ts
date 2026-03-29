@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface Theme {
   id: string
@@ -11,10 +11,10 @@ export interface Theme {
   accentFg: string
 }
 
+// Source of truth — synced with construct-app/frontend/composables/useAppTheme.ts
 const builtinThemes: Theme[] = [
-  { id: 'auto', name: 'Auto (System)', mode: 'dark', bg: '#0f172a', fg: '#f8fafc', muted: '#64748b', accent: '#34C759', accentFg: '#ffffff' },
-  { id: 'vs', name: 'Light', mode: 'light', bg: '#f4f6f8', fg: '#1e293b', muted: '#64748b', accent: '#475569', accentFg: '#ffffff' },
-  { id: 'vs-dark', name: 'Dark', mode: 'dark', bg: '#1e1e1e', fg: '#d4d4d4', muted: '#6b7280', accent: '#34C759', accentFg: '#ffffff' },
+  { id: 'vs', name: 'Light', mode: 'light', bg: '#f1f5f9', fg: '#0f172a', muted: '#64748b', accent: '#E63946', accentFg: '#ffffff' },
+  { id: 'vs-dark', name: 'Dark', mode: 'dark', bg: '#0f172a', fg: '#e2e8f0', muted: '#64748b', accent: '#E63946', accentFg: '#ffffff' },
   { id: 'synthwave-84', name: "Synthwave '84", mode: 'dark', bg: '#262335', fg: '#ffffff', muted: '#848bbd', accent: '#ff7edb', accentFg: '#000000' },
   { id: 'dracula', name: 'Dracula', mode: 'dark', bg: '#282a36', fg: '#f8f8f2', muted: '#6272a4', accent: '#bd93f9', accentFg: '#000000' },
   { id: 'one-dark', name: 'One Dark', mode: 'dark', bg: '#282c34', fg: '#abb2bf', muted: '#5c6370', accent: '#61afef', accentFg: '#000000' },
@@ -25,8 +25,8 @@ const builtinThemes: Theme[] = [
   { id: 'cobalt2', name: 'Cobalt2', mode: 'dark', bg: '#193549', fg: '#ffffff', muted: '#0088ff', accent: '#ffc600', accentFg: '#000000' },
   { id: 'material', name: 'Material', mode: 'dark', bg: '#263238', fg: '#eeffff', muted: '#546e7a', accent: '#89ddff', accentFg: '#000000' },
   { id: 'tokyo-night', name: 'Tokyo Night', mode: 'dark', bg: '#1a1b26', fg: '#c0caf5', muted: '#565f89', accent: '#7aa2f7', accentFg: '#ffffff' },
-  { id: 'hc-black', name: 'High Contrast', mode: 'dark', bg: '#000000', fg: '#ffffff', muted: '#808080', accent: '#ffff00', accentFg: '#000000' },
-  { id: 'hc-light', name: 'HC Light', mode: 'light', bg: '#ffffff', fg: '#000000', muted: '#808080', accent: '#0000ff', accentFg: '#ffffff' },
+  { id: 'hc-black', name: 'High Contrast Dark', mode: 'dark', bg: '#000000', fg: '#ffffff', muted: '#808080', accent: '#ffff00', accentFg: '#000000' },
+  { id: 'hc-light', name: 'High Contrast Light', mode: 'light', bg: '#ffffff', fg: '#000000', muted: '#808080', accent: '#0000ff', accentFg: '#ffffff' },
 ]
 
 const STORAGE_KEY = 'construct-theme'
@@ -35,7 +35,14 @@ const currentThemeId = ref<string>('vs-dark')
 const customThemes = ref<Theme[]>([])
 
 const allThemes = computed(() => [...builtinThemes, ...customThemes.value])
-const currentTheme = computed(() => allThemes.value.find(t => t.id === currentThemeId.value) || builtinThemes[2])
+const currentTheme = computed(() => {
+  const id = currentThemeId.value
+  if (id === 'auto') {
+    const prefersDark = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)').matches !== false : true
+    return allThemes.value.find(t => t.id === (prefersDark ? 'vs-dark' : 'vs')) || builtinThemes[1]
+  }
+  return allThemes.value.find(t => t.id === id) || builtinThemes[1]
+})
 const isDark = computed(() => currentTheme.value.mode === 'dark')
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -81,9 +88,8 @@ function applyTheme(theme: Theme) {
 }
 
 function setTheme(id: string) {
-  const theme = allThemes.value.find(t => t.id === id)
-  if (!theme) return
   currentThemeId.value = id
+  const theme = currentTheme.value // resolves 'auto' to vs/vs-dark
   applyTheme(theme)
   try { localStorage.setItem(STORAGE_KEY, id) } catch { /* noop */ }
 }
