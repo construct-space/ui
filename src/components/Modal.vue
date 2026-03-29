@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<{
   description?: string
   fullscreen?: boolean
   preventClose?: boolean
+  closeOnClickOutside?: boolean
   ui?: Record<string, string>
 }>(), {
   open: false,
@@ -18,6 +19,7 @@ const props = withDefaults(defineProps<{
   description: '',
   fullscreen: false,
   preventClose: false,
+  closeOnClickOutside: true,
 })
 
 const emit = defineEmits<{
@@ -32,7 +34,7 @@ function close() {
 }
 
 function onOverlayClick(e: MouseEvent) {
-  if (e.target === e.currentTarget) close()
+  if (props.closeOnClickOutside && e.target === e.currentTarget) close()
 }
 
 useEscapeKey(() => { if (props.open) close() })
@@ -56,13 +58,22 @@ useEscapeKey(() => { if (props.open) close() })
           ]"
         >
           <!-- Header -->
-          <div v-if="$slots.header || title || description" class="p-6 pb-0 shrink-0">
-            <slot name="header">
-              <div class="flex flex-col gap-1.5">
-                <h2 v-if="title" class="text-lg font-semibold text-[var(--app-foreground)]">{{ title }}</h2>
-                <p v-if="description" class="text-sm text-[var(--app-muted)]">{{ description }}</p>
-              </div>
-            </slot>
+          <div class="flex items-center justify-between px-6 pt-5 pb-0 shrink-0">
+            <div v-if="$slots.header || title || description" class="flex-1 min-w-0">
+              <slot name="header">
+                <div class="flex flex-col gap-1">
+                  <h2 v-if="title" class="text-lg font-semibold text-[var(--app-foreground)]">{{ title }}</h2>
+                  <p v-if="description" class="text-sm text-[var(--app-muted)]">{{ description }}</p>
+                </div>
+              </slot>
+            </div>
+            <button
+              v-if="!preventClose"
+              class="shrink-0 p-1.5 -mt-1 -mr-1 rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--app-muted)_15%,transparent)] focus:outline-none text-[var(--app-muted)] hover:text-[var(--app-foreground)]"
+              @click="close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
           </div>
 
           <!-- Body -->
@@ -79,14 +90,6 @@ useEscapeKey(() => { if (props.open) close() })
             <slot name="footer" />
           </div>
 
-          <!-- Close button -->
-          <button
-            v-if="!preventClose"
-            class="absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none text-[var(--app-muted)]"
-            @click="close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
         </div>
       </div>
     </Transition>
