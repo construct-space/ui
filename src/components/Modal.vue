@@ -58,7 +58,7 @@ useEscapeKey(() => { if (props.open) close() })
           ]"
         >
           <!-- Header -->
-          <div class="flex items-center justify-between px-6 pt-5 pb-0 shrink-0">
+          <div class="flex items-center justify-between px-6 pt-6 pb-0 shrink-0">
             <div v-if="$slots.header || title || description" class="flex-1 min-w-0">
               <slot name="header">
                 <div class="flex flex-col gap-1">
