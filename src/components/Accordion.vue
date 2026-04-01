@@ -102,7 +102,14 @@ function toIconify(name: string) {
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-      <Transition name="accordion">
+      <Transition
+        enter-active-class="transition-all duration-200 ease-in-out"
+        leave-active-class="transition-all duration-150 ease-in-out"
+        enter-from-class="opacity-0 max-h-0"
+        leave-to-class="opacity-0 max-h-0"
+        enter-to-class="opacity-100 max-h-[500px]"
+        leave-from-class="opacity-100 max-h-[500px]"
+      >
         <div v-if="isOpen(item.value || String(i))" class="overflow-hidden text-sm">
           <div class="text-[var(--app-muted)]">
             <slot name="body" :item="item">
@@ -118,10 +125,3 @@ function toIconify(name: string) {
     </div>
   </div>
 </template>
-
-<style>
-.accordion-enter-active { transition: all 0.2s ease; }
-.accordion-leave-active { transition: all 0.15s ease; }
-.accordion-enter-from, .accordion-leave-to { opacity: 0; max-height: 0; }
-.accordion-enter-to, .accordion-leave-from { opacity: 1; max-height: 500px; }
-</style>

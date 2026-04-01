@@ -84,21 +84,84 @@ export { useToggle, useCounter } from './composables/useToggle'
 export { useSearch } from './composables/useSearch'
 export { useIntersectionObserver } from './composables/useIntersectionObserver'
 
-// Tokens CSS (importable as side-effect)
-import './tokens/tokens.css'
-
-// Vue plugin for global registration
+// Vue plugin for global component registration
 import type { App } from 'vue'
 
+import Accordion from './components/Accordion.vue'
+import Alert from './components/Alert.vue'
+import Avatar from './components/Avatar.vue'
+import Badge from './components/Badge.vue'
+import Button from './components/Button.vue'
+import Calendar from './components/Calendar.vue'
+import Card from './components/Card.vue'
+import Checkbox from './components/Checkbox.vue'
+import Chip from './components/Chip.vue'
+import ColorPicker from './components/ColorPicker.vue'
+import ConfirmationModal from './components/ConfirmationModal.vue'
+import ContextMenu from './components/ContextMenu.vue'
+import DashboardPanel from './components/DashboardPanel.vue'
+import Drawer from './components/Drawer.vue'
+import Dropdown from './components/Dropdown.vue'
+import DropdownMenu from './components/DropdownMenu.vue'
+import DropdownMenuItem from './components/DropdownMenuItem.vue'
+import Empty from './components/Empty.vue'
+import FormField from './components/FormField.vue'
+import Group from './components/Group.vue'
+import Icon from './components/Icon.vue'
+import Input from './components/Input.vue'
+import Kbd from './components/Kbd.vue'
+import Modal from './components/Modal.vue'
+import Pagination from './components/Pagination.vue'
+import PanelSection from './components/PanelSection.vue'
+import Popover from './components/Popover.vue'
+import Progress from './components/Progress.vue'
+import PropRow from './components/PropRow.vue'
+import RadioGroup from './components/RadioGroup.vue'
+import ScrollArea from './components/ScrollArea.vue'
+import Select from './components/Select.vue'
+import SelectMenu from './components/SelectMenu.vue'
+import Separator from './components/Separator.vue'
+import Skeleton from './components/Skeleton.vue'
+import Slideover from './components/Slideover.vue'
+import Slider from './components/Slider.vue'
+import SplitPane from './components/SplitPane.vue'
+import Switch from './components/Switch.vue'
+import Tab from './components/Tab.vue'
+import Table from './components/Table.vue'
+import Tabs from './components/Tabs.vue'
+import Textarea from './components/Textarea.vue'
+import Timeline from './components/Timeline.vue'
+import Notification from './components/Notification.vue'
+import Tooltip from './components/Tooltip.vue'
+import Tree from './components/Tree.vue'
+import Autocomplete from './components/Autocomplete.vue'
+import Breadcrumbs from './components/Breadcrumbs.vue'
+import DatePicker from './components/DatePicker.vue'
+import FileInput from './components/FileInput.vue'
+import MultiSelect from './components/MultiSelect.vue'
+import Sidebar3D from './components/Sidebar3D.vue'
+import ToggleGroup from './components/ToggleGroup.vue'
+import Toolbar3D from './components/Toolbar3D.vue'
+import SidebarLayout from './layouts/SidebarLayout.vue'
+import HeaderLayout from './layouts/HeaderLayout.vue'
+
+const allComponents: Record<string, any> = {
+  Accordion, Alert, Avatar, Badge, Button, Calendar, Card, Checkbox,
+  Chip, ColorPicker, ConfirmationModal, ContextMenu, DashboardPanel,
+  Drawer, Dropdown, DropdownMenu, DropdownMenuItem, Empty, FormField,
+  Group, Icon, Input, Kbd, Modal, Pagination, PanelSection, Popover,
+  Progress, PropRow, RadioGroup, ScrollArea, Select, SelectMenu,
+  Separator, Skeleton, Slideover, Slider, SplitPane, Switch, Tab,
+  Table, Tabs, Textarea, Timeline, Notification, Tooltip, Tree,
+  Autocomplete, Breadcrumbs, DatePicker, FileInput, MultiSelect,
+  Sidebar3D, ToggleGroup, Toolbar3D, SidebarLayout, HeaderLayout,
+}
+
 export const ConstructUI = {
-  install(app: App) {
-    // Auto-register all components with C prefix
-    const components = import.meta.glob('./components/*.vue', { eager: true }) as Record<string, { default: any }>
-    for (const [path, module] of Object.entries(components)) {
-      const name = 'C' + path.match(/\/(\w+)\.vue$/)?.[1]
-      if (name && module.default) {
-        app.component(name, module.default)
-      }
+  install(app: App, options?: { prefix?: string }) {
+    const prefix = options?.prefix ?? 'C'
+    for (const [name, component] of Object.entries(allComponents)) {
+      app.component(`${prefix}${name}`, component)
     }
   },
 }

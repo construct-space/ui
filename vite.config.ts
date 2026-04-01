@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [
-    tailwindcss(),
     vue(),
     AutoImport({
       imports: ['vue'],
@@ -22,23 +20,33 @@ export default defineConfig({
       dts: false,
     }),
   ],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'ConstructUI',
-      fileName: 'construct-ui',
+      entry: {
+        'construct-ui': resolve(__dirname, 'src/index.ts'),
+        'vite': resolve(__dirname, 'src/vite.ts'),
+      },
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: [
+        'vue',
+        'reka-ui',
+        /^reka-ui\//,
+        '@iconify/vue',
+        'unplugin-auto-import/vite',
+        'unplugin-vue-components',
+        'unplugin-vue-components/vite',
+      ],
       output: {
         globals: {
           vue: 'Vue',
         },
-        assetFileNames: 'style.css',
       },
     },
-    cssCodeSplit: false,
   },
   resolve: {
     alias: {

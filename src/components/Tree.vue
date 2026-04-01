@@ -287,7 +287,7 @@ function onDragEnd() {
     ref="treeRoot"
     role="tree"
     tabindex="0"
-    class="tree-root text-sm text-[var(--app-foreground)] outline-none select-none overflow-auto"
+    class="text-sm text-[var(--app-foreground)] outline-none focus-visible:outline-none select-none overflow-auto"
     @keydown="handleKeydown"
     @focus="() => { if (!focusedId && items.length) focusedId = items[0].id }"
   >
@@ -538,8 +538,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.tree-root:focus-visible {
-  outline: none;
-}
-</style>

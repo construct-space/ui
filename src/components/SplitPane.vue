@@ -85,76 +85,33 @@ const secondPaneStyle = computed(() => ({
   minWidth: 0,
   minHeight: 0,
 }))
-
-const separatorStyle = computed(() => ({
-  flexShrink: 0,
-  background: 'transparent',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  cursor: props.direction === 'horizontal' ? 'col-resize' : 'row-resize',
-  width: props.direction === 'horizontal' ? '8px' : '100%',
-  height: props.direction === 'horizontal' ? '100%' : '8px',
-  zIndex: 10,
-}))
 </script>
 
 <template>
-  <div ref="containerRef" class="split-pane" :style="containerStyle">
+  <div ref="containerRef" class="relative" :style="containerStyle">
     <div :style="firstPaneStyle">
       <slot name="first" />
     </div>
     <div
-      class="separator"
-      :class="{
-        'separator--horizontal': direction === 'horizontal',
-        'separator--vertical': direction === 'vertical',
-        'separator--dragging': isDragging,
-      }"
-      :style="separatorStyle"
+      class="group shrink-0 flex items-center justify-center bg-transparent transition-colors duration-150"
+      :class="[
+        direction === 'horizontal' ? 'cursor-col-resize w-2 h-full' : 'cursor-row-resize h-2 w-full',
+        isDragging ? 'bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)]' : 'hover:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)]',
+      ]"
+      :style="{ flexShrink: 0, zIndex: 10 }"
       @pointerdown="startDrag"
       @dblclick="resetPosition"
     >
-      <div class="separator-bar" />
+      <div
+        class="rounded-sm transition-all duration-150"
+        :class="[
+          direction === 'horizontal' ? 'w-[3px] h-6' : 'w-6 h-[3px]',
+          isDragging ? 'bg-[var(--app-accent)]' : 'bg-[var(--app-border)] group-hover:bg-[var(--app-accent)]',
+        ]"
+      />
     </div>
     <div :style="secondPaneStyle">
       <slot name="second" />
     </div>
   </div>
 </template>
-
-<style scoped>
-.split-pane {
-  position: relative;
-}
-
-.separator {
-  transition: background-color 0.15s ease;
-}
-
-.separator:hover,
-.separator--dragging {
-  background: var(--app-accent-muted, rgba(99, 102, 241, 0.1));
-}
-
-.separator-bar {
-  border-radius: 2px;
-  background: var(--app-border, rgba(255, 255, 255, 0.1));
-  transition: all 0.15s ease;
-}
-
-.separator--horizontal .separator-bar {
-  width: 3px;
-  height: 24px;
-}
-
-.separator--vertical .separator-bar {
-  width: 24px;
-  height: 3px;
-}
-
-.separator:hover .separator-bar,
-.separator--dragging .separator-bar {
-  background: var(--app-accent, #6366f1);
-}
-</style>

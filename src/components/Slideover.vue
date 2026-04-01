@@ -36,14 +36,24 @@ useEscapeKey(() => { if (props.open) close() })
 
 <template>
   <Teleport to="body">
-    <Transition name="slideover-overlay">
+    <Transition
+      enter-active-class="transition-opacity duration-200 ease-in-out"
+      leave-active-class="transition-opacity duration-150 ease-in-out"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <div
         v-if="open"
         class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
         @mousedown="onOverlayClick"
       />
     </Transition>
-    <Transition :name="side === 'left' ? 'slideover-left' : 'slideover-right'">
+    <Transition
+      enter-active-class="transition-transform duration-300 ease-in-out"
+      leave-active-class="transition-transform duration-300 ease-in-out"
+      :enter-from-class="side === 'left' ? '-translate-x-full' : 'translate-x-full'"
+      :leave-to-class="side === 'left' ? '-translate-x-full' : 'translate-x-full'"
+    >
       <div
         v-if="open"
         :class="[
@@ -71,17 +81,3 @@ useEscapeKey(() => { if (props.open) close() })
     </Transition>
   </Teleport>
 </template>
-
-<style>
-.slideover-overlay-enter-active { transition: opacity 0.2s ease; }
-.slideover-overlay-leave-active { transition: opacity 0.15s ease; }
-.slideover-overlay-enter-from, .slideover-overlay-leave-to { opacity: 0; }
-
-.slideover-right-enter-active, .slideover-right-leave-active { transition: transform 0.3s ease; }
-.slideover-right-enter-from { transform: translateX(100%); }
-.slideover-right-leave-to { transform: translateX(100%); }
-
-.slideover-left-enter-active, .slideover-left-leave-active { transition: transform 0.3s ease; }
-.slideover-left-enter-from { transform: translateX(-100%); }
-.slideover-left-leave-to { transform: translateX(-100%); }
-</style>

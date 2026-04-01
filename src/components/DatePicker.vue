@@ -136,7 +136,12 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
       </button>
     </div>
 
-    <Transition name="dropdown">
+    <Transition
+      enter-active-class="transition-all duration-150 ease-out"
+      leave-active-class="transition-all duration-100 ease-in"
+      enter-from-class="opacity-0 -translate-y-1"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
       <div v-if="open" class="absolute z-50 mt-1 w-64 rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg p-3" @click.stop>
         <!-- Month navigation -->
         <div class="flex items-center justify-between mb-2">
@@ -177,9 +182,3 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
     </Transition>
   </div>
 </template>
-
-<style scoped>
-.dropdown-enter-active { transition: all 0.15s ease-out; }
-.dropdown-leave-active { transition: all 0.1s ease-in; }
-.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-4px); }
-</style>

@@ -43,7 +43,12 @@ useEscapeKey(() => { if (props.open) close() })
 <template>
   <slot v-if="$slots.trigger" name="trigger" />
   <Teleport to="body">
-    <Transition name="modal">
+    <Transition
+      enter-active-class="transition-opacity duration-200 ease-in-out"
+      leave-active-class="transition-opacity duration-150 ease-in-out"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center" @mousedown="onOverlayClick">
         <!-- Overlay -->
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -95,9 +100,3 @@ useEscapeKey(() => { if (props.open) close() })
     </Transition>
   </Teleport>
 </template>
-
-<style>
-.modal-enter-active { transition: opacity 0.2s ease; }
-.modal-leave-active { transition: opacity 0.15s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-</style>

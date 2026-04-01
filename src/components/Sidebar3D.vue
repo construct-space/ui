@@ -21,19 +21,12 @@ export interface SidebarSection {
 }
 
 const props = withDefaults(defineProps<{
-  /** Main panel sections (front face) */
   sections?: SidebarSection[]
-  /** Side panel items (right face, shown when rotated) */
   sideItems?: SidebarItem[]
-  /** Back button label for side panel */
   sideBackLabel?: string
-  /** Whether the sidebar is rotated to show side panel */
   rotated?: boolean
-  /** Logo slot or icon name */
   logoIcon?: string
-  /** Avatar initials for bottom */
   avatar?: string
-  /** Avatar active/menu state */
   avatarActive?: boolean
 }>(), {
   sections: () => [],
@@ -50,14 +43,20 @@ const emit = defineEmits<{
   'logo-click': []
   'avatar-click': []
 }>()
+
+function sidebarBtnClass(active?: boolean): string {
+  const base = 'flex items-center justify-center size-[42px] rounded-[10px] cursor-pointer transition-all duration-150 border-none'
+  if (active) return `${base} bg-[color-mix(in_srgb,var(--item-color,var(--app-accent))_15%,transparent)] text-[var(--item-color,var(--app-accent))]`
+  return `${base} bg-transparent text-[var(--app-muted)] hover:bg-[color-mix(in_srgb,var(--app-muted)_10%,transparent)] hover:text-[var(--app-foreground)]`
+}
 </script>
 
 <template>
-  <aside class="w-[72px] flex flex-col items-center shrink-0 z-50 bg-transparent backdrop-blur-md border-r" style="border-color: var(--app-border)">
+  <aside class="w-[72px] flex flex-col items-center shrink-0 z-50 bg-transparent backdrop-blur-md border-r border-[var(--app-border)]">
     <!-- Logo -->
     <div class="pt-12 pb-2 shrink-0 cursor-pointer" @click="emit('logo-click')">
       <slot name="logo">
-        <div class="size-8 rounded-lg flex items-center justify-center" style="color: var(--app-accent)">
+        <div class="size-8 rounded-lg flex items-center justify-center text-[var(--app-accent)]">
           <slot name="logo-icon" />
         </div>
       </slot>
@@ -75,17 +74,17 @@ const emit = defineEmits<{
         <!-- Front Face: Main nav -->
         <div
           class="absolute inset-0 w-full h-full flex flex-col items-center gap-1 pt-2 overflow-y-auto"
-          style="backface-visibility: hidden; transform: translateZ(36px)"
+          :style="{ backfaceVisibility: 'hidden', transform: 'translateZ(36px)' }"
         >
           <template v-for="(section, si) in sections" :key="si">
-            <div v-if="section.separator && si > 0" class="w-8 border-t my-1" style="border-color: var(--app-border)" />
+            <div v-if="section.separator && si > 0" class="w-8 border-t border-[var(--app-border)] my-1" />
             <button
               v-for="item in section.items"
               :key="item.id"
-              class="sidebar-btn relative"
-              :class="item.active ? 'active' : ''"
+              :class="sidebarBtnClass(item.active)"
               :style="item.active && item.color ? `--item-color: ${item.color}` : ''"
               :title="item.label"
+              class="relative"
               @click="emit('item-click', item)"
             >
               <component :is="'Icon'" :name="item.icon" class="size-5" />
@@ -99,11 +98,12 @@ const emit = defineEmits<{
         <!-- Right Face: Side panel (space sub-pages) -->
         <div
           class="absolute inset-0 w-full h-full flex flex-col items-center gap-1 pt-2"
-          style="backface-visibility: hidden; transform: rotateY(90deg) translateZ(36px)"
+          :style="{ backfaceVisibility: 'hidden', transform: 'rotateY(90deg) translateZ(36px)' }"
         >
           <!-- Back button -->
           <button
-            class="sidebar-btn mb-2"
+            :class="sidebarBtnClass(false)"
+            class="mb-2"
             :title="sideBackLabel"
             @click="emit('back')"
           >
@@ -113,8 +113,7 @@ const emit = defineEmits<{
           <button
             v-for="item in sideItems"
             :key="item.id"
-            class="sidebar-btn"
-            :class="item.active ? 'active' : ''"
+            :class="sidebarBtnClass(item.active)"
             :title="item.label"
             @click="emit('item-click', item)"
           >
@@ -138,27 +137,3 @@ const emit = defineEmits<{
     </div>
   </aside>
 </template>
-
-<style scoped>
-.sidebar-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: none;
-  background: transparent;
-  color: var(--app-muted);
-}
-.sidebar-btn:hover {
-  background: color-mix(in srgb, var(--app-muted) 10%, transparent);
-  color: var(--app-foreground);
-}
-.sidebar-btn.active {
-  background: color-mix(in srgb, var(--item-color, var(--app-accent)) 15%, transparent);
-  color: var(--item-color, var(--app-accent));
-}
-</style>

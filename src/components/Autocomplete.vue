@@ -140,7 +140,12 @@ const sizeClasses: Record<string, string> = {
     </div>
 
     <!-- Dropdown -->
-    <Transition name="dropdown">
+    <Transition
+      enter-active-class="transition-all duration-150 ease-out"
+      leave-active-class="transition-all duration-100 ease-in"
+      enter-from-class="opacity-0 -translate-y-1"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
       <div v-if="open" class="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg">
         <div
           v-for="(opt, i) in getFilteredOptions()"
@@ -160,9 +165,3 @@ const sizeClasses: Record<string, string> = {
     </Transition>
   </div>
 </template>
-
-<style scoped>
-.dropdown-enter-active { transition: all 0.15s ease-out; }
-.dropdown-leave-active { transition: all 0.1s ease-in; }
-.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-4px); }
-</style>

@@ -43,22 +43,12 @@ const accentColor = computed(() => {
 
 // Circle variant sizing
 const circleSize = computed(() => {
-  const map: Record<string, number> = {
-    xs: 32,
-    sm: 48,
-    md: 64,
-    lg: 96,
-  }
+  const map: Record<string, number> = { xs: 32, sm: 48, md: 64, lg: 96 }
   return map[props.size]
 })
 
 const strokeWidth = computed(() => {
-  const map: Record<string, number> = {
-    xs: 3,
-    sm: 4,
-    md: 5,
-    lg: 6,
-  }
+  const map: Record<string, number> = { xs: 3, sm: 4, md: 5, lg: 6 }
   return map[props.size]
 })
 
@@ -76,13 +66,32 @@ const strokeDashoffset = computed(() => {
 })
 
 const labelFontSize = computed(() => {
-  const map: Record<string, string> = {
-    xs: 'text-[8px]',
-    sm: 'text-[10px]',
-    md: 'text-xs',
-    lg: 'text-sm',
-  }
+  const map: Record<string, string> = { xs: 'text-[8px]', sm: 'text-[10px]', md: 'text-xs', lg: 'text-sm' }
   return map[props.size]
+})
+
+const indeterminateBarStyle = computed(() => ({
+  width: '40%',
+  backgroundColor: accentColor.value,
+  animation: 'cui-progress-indeterminate 1.5s ease-in-out infinite',
+}))
+
+const barFillStyle = computed(() => ({
+  width: `${percentage.value}%`,
+  backgroundColor: accentColor.value,
+}))
+
+// Inject keyframes on mount (once)
+const injected = ref(false)
+onMounted(() => {
+  if (injected.value) return
+  if (typeof document === 'undefined') return
+  if (document.getElementById('cui-progress-keyframes')) { injected.value = true; return }
+  const style = document.createElement('style')
+  style.id = 'cui-progress-keyframes'
+  style.textContent = `@keyframes cui-progress-indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }`
+  document.head.appendChild(style)
+  injected.value = true
 })
 </script>
 
@@ -96,14 +105,8 @@ const labelFontSize = computed(() => {
       ]"
     >
       <div
-        :class="[
-          'h-full rounded-full transition-all duration-500 ease-out',
-          { 'animate-progress-indeterminate': indeterminate },
-        ]"
-        :style="{
-          width: indeterminate ? '40%' : `${percentage}%`,
-          backgroundColor: accentColor,
-        }"
+        :class="['h-full rounded-full transition-all duration-500 ease-out']"
+        :style="indeterminate ? indeterminateBarStyle : barFillStyle"
       />
     </div>
     <div
@@ -160,18 +163,3 @@ const labelFontSize = computed(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-@keyframes progress-indeterminate {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(350%);
-  }
-}
-
-.animate-progress-indeterminate {
-  animation: progress-indeterminate 1.5s ease-in-out infinite;
-}
-</style>

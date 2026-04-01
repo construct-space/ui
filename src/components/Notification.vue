@@ -29,7 +29,15 @@ function getIconColorClass(color?: string): string {
 <template>
   <Teleport to="body">
     <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-80">
-      <TransitionGroup name="toast" tag="div" class="flex flex-col gap-2">
+      <TransitionGroup
+        tag="div"
+        class="flex flex-col gap-2"
+        enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        leave-active-class="transition-all duration-200 ease-[cubic-bezier(0.4,0,1,1)]"
+        enter-from-class="opacity-0 translate-x-full"
+        leave-to-class="opacity-0 translate-x-full"
+        move-class="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+      >
         <div v-for="t in notifications" :key="t.id" :class="[
           'rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm',
           'bg-[var(--app-background)]',
@@ -99,27 +107,3 @@ function getIconColorClass(color?: string): string {
     </div>
   </Teleport>
 </template>
-
-<style scoped>
-.toast-enter-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toast-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 1, 1);
-}
-
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-move {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-</style>

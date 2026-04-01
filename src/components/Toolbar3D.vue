@@ -20,19 +20,12 @@ export interface BreadcrumbItem {
 }
 
 const props = withDefaults(defineProps<{
-  /** Breadcrumb items for front panel */
   breadcrumbs?: BreadcrumbItem[]
-  /** Action buttons on the right */
   actions?: ToolbarAction[]
-  /** Next page breadcrumbs (bottom panel, shown during rotation) */
   nextBreadcrumbs?: BreadcrumbItem[]
-  /** Next page actions */
   nextActions?: ToolbarAction[]
-  /** Whether currently rotating */
   rotating?: boolean
-  /** Space icon to show before breadcrumbs */
   spaceIcon?: string
-  /** Space accent color */
   spaceColor?: string
 }>(), {
   breadcrumbs: () => [],
@@ -46,6 +39,16 @@ const emit = defineEmits<{
   'action-click': [action: ToolbarAction]
   'breadcrumb-click': [crumb: BreadcrumbItem]
 }>()
+
+function actionBtnClass(action: ToolbarAction): string {
+  const base = 'inline-flex items-center justify-center size-8 rounded-md cursor-pointer transition-all duration-150 border-none'
+  if (action.disabled) return `${base} opacity-40 cursor-not-allowed text-[var(--app-muted)] bg-transparent`
+  if (action.active) return `${base} bg-[color-mix(in_srgb,var(--app-accent)_15%,transparent)] text-[var(--app-accent)]`
+  return `${base} bg-transparent text-[var(--app-muted)] hover:bg-[color-mix(in_srgb,var(--app-muted)_10%,transparent)] hover:text-[var(--app-foreground)]`
+}
+
+const panelStyle = { backfaceVisibility: 'hidden' as const, transform: 'translateZ(22px)' }
+const bottomPanelStyle = { backfaceVisibility: 'hidden' as const, transform: 'rotateX(-90deg) translateZ(22px)' }
 </script>
 
 <template>
@@ -56,7 +59,7 @@ const emit = defineEmits<{
       :style="{ transformStyle: 'preserve-3d', transform: rotating ? 'rotateX(-90deg)' : 'rotateX(0deg)' }"
     >
       <!-- Front Panel -->
-      <div class="toolbar-panel absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]">
+      <div class="absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]" :style="panelStyle">
         <!-- Space icon -->
         <div v-if="spaceIcon" class="size-5 rounded flex items-center justify-center shrink-0" :style="`background: color-mix(in srgb, ${spaceColor || 'var(--app-accent)'} 15%, transparent)`">
           <slot name="space-icon">
@@ -67,14 +70,13 @@ const emit = defineEmits<{
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-1.5 text-sm ml-1">
           <template v-for="(crumb, i) in breadcrumbs" :key="i">
-            <svg v-if="i > 0" class="size-3 shrink-0" style="color: var(--app-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <svg v-if="i > 0" class="size-3 shrink-0 text-[var(--app-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             <button
               v-if="crumb.to"
-              class="hover:underline transition-colors"
-              style="color: var(--app-muted)"
+              class="text-[var(--app-muted)] hover:underline transition-colors"
               @click="emit('breadcrumb-click', crumb)"
             >{{ crumb.label }}</button>
-            <span v-else class="font-medium" style="color: var(--app-foreground)">{{ crumb.label }}</span>
+            <span v-else class="font-medium text-[var(--app-foreground)]">{{ crumb.label }}</span>
           </template>
         </nav>
 
@@ -90,8 +92,7 @@ const emit = defineEmits<{
             <button
               v-for="action in actions"
               :key="action.id"
-              class="toolbar-btn"
-              :class="action.active ? 'active' : ''"
+              :class="actionBtnClass(action)"
               :disabled="action.disabled"
               :title="action.label"
               @click="emit('action-click', action)"
@@ -105,18 +106,18 @@ const emit = defineEmits<{
       </div>
 
       <!-- Bottom Panel (rotation target) -->
-      <div class="toolbar-panel toolbar-panel--bottom absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]">
+      <div class="absolute inset-0 w-full h-11 px-4 flex items-center gap-2 rounded-r-xl border border-[var(--app-border)] bg-[var(--app-surface,var(--app-card-bg))]" :style="bottomPanelStyle">
         <nav class="flex items-center gap-1.5 text-sm ml-1">
           <template v-for="(crumb, i) in nextBreadcrumbs" :key="i">
-            <svg v-if="i > 0" class="size-3 shrink-0" style="color: var(--app-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span :style="i === nextBreadcrumbs.length - 1 ? 'color: var(--app-foreground); font-weight: 500' : 'color: var(--app-muted)'">{{ crumb.label }}</span>
+            <svg v-if="i > 0" class="size-3 shrink-0 text-[var(--app-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <span :class="i === nextBreadcrumbs.length - 1 ? 'font-medium text-[var(--app-foreground)]' : 'text-[var(--app-muted)]'">{{ crumb.label }}</span>
           </template>
         </nav>
         <div class="flex-1" />
         <template v-if="nextActions.length">
           <div class="w-px h-5 bg-[var(--app-border)]" />
           <div class="flex items-center gap-0.5">
-            <button v-for="action in nextActions" :key="action.id" class="toolbar-btn" :class="action.active ? 'active' : ''" :title="action.label">
+            <button v-for="action in nextActions" :key="action.id" :class="actionBtnClass(action)" :title="action.label">
               <component :is="'Icon'" :name="action.icon" class="size-4" />
             </button>
           </div>
@@ -125,38 +126,3 @@ const emit = defineEmits<{
     </div>
   </div>
 </template>
-
-<style scoped>
-.toolbar-panel {
-  backface-visibility: hidden;
-  transform: translateZ(22px);
-}
-.toolbar-panel--bottom {
-  transform: rotateX(-90deg) translateZ(22px);
-}
-.toolbar-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: none;
-  background: transparent;
-  color: var(--app-muted);
-}
-.toolbar-btn:hover {
-  background: var(--app-input-bg, color-mix(in srgb, var(--app-muted) 10%, transparent));
-  color: var(--app-foreground);
-}
-.toolbar-btn.active {
-  background: color-mix(in srgb, var(--app-accent) 15%, transparent);
-  color: var(--app-accent);
-}
-.toolbar-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-</style>

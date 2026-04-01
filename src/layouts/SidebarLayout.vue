@@ -1,22 +1,17 @@
 <script setup lang="ts">
 /**
  * SidebarLayout - 60px icon sidebar used by billing, delivery, and other infra services.
- *
- * Provides: fixed left sidebar with icon nav, tooltip on hover, user avatar dropdown at bottom.
- * Consumers pass nav items and user info as props.
  */
 import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 
-/** Convert shorthand icon names to Iconify format if needed */
 function toIconify(name: string): string {
-  if (name.includes(':')) return name          // already "mdi:home"
-  if (name.startsWith('lucide-')) return name.replace('-', ':') // "lucide-home" → "lucide:home"
-  return `lucide:${name}`                      // bare "home" → "lucide:home"
+  if (name.includes(':')) return name
+  if (name.startsWith('lucide-')) return name.replace('-', ':')
+  return `lucide:${name}`
 }
 
 export interface NavItem {
-  /** Iconify icon name, e.g. "lucide:home" or shorthand "home" */
   icon: string
   label: string
   to: string
@@ -54,47 +49,49 @@ const initials = computed(() => {
 </script>
 
 <template>
-  <div class="cui-sidebar-layout">
-    <aside class="cui-sidebar">
+  <div class="flex min-h-screen">
+    <aside class="w-[60px] bg-[var(--app-background)] border-r border-[var(--app-border)] flex flex-col items-center py-4 fixed top-0 left-0 bottom-0 z-[100]">
       <!-- Logo -->
-      <div class="cui-sidebar-logo">
+      <div class="mb-6 text-xl font-bold text-[var(--app-foreground)]">
         <slot name="logo">
           <span v-if="serviceIcon">{{ serviceIcon }}</span>
-          <span v-else class="cui-sidebar-logo-text">C</span>
+          <span v-else class="flex items-center justify-center size-8">C</span>
         </slot>
       </div>
 
       <!-- Navigation -->
-      <nav class="cui-sidebar-nav">
+      <nav class="flex-1 flex flex-col items-center gap-1">
         <div
           v-for="item in navItems"
           :key="item.to"
-          class="cui-sidebar-nav-item"
-          :class="{ active: item.active }"
+          class="relative size-10 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-150"
+          :class="item.active
+            ? 'text-[var(--app-accent)] bg-white/[0.06]'
+            : 'text-[var(--app-muted)] hover:bg-white/[0.06] hover:text-[var(--app-foreground)]'"
           @click="emit('navigate', item.to)"
           @mouseenter="hoveredNav = item.to"
           @mouseleave="hoveredNav = null"
         >
           <Icon :icon="toIconify(item.icon)" width="20" height="20" />
-          <div v-if="hoveredNav === item.to" class="cui-sidebar-tooltip">
+          <div v-if="hoveredNav === item.to" class="absolute left-[52px] top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-[var(--app-foreground)] text-[var(--app-background)] text-xs font-medium rounded-md whitespace-nowrap pointer-events-none z-[200]">
             {{ item.label }}
           </div>
         </div>
       </nav>
 
       <!-- User -->
-      <div class="cui-sidebar-user">
+      <div class="relative">
         <div
-          class="cui-sidebar-avatar"
+          class="size-8 rounded-full flex items-center justify-center text-white text-xs font-semibold cursor-pointer overflow-hidden"
           :style="{ background: accentColor }"
           @click="showUserMenu = !showUserMenu"
         >
-          <img v-if="userAvatar" :src="userAvatar" :alt="userName" />
+          <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
           <span v-else>{{ initials }}</span>
         </div>
-        <div v-if="showUserMenu" class="cui-sidebar-user-menu">
+        <div v-if="showUserMenu" class="absolute left-[52px] bottom-0 bg-[var(--app-background)] border border-[var(--app-border)] rounded-lg min-w-[160px] p-1 z-[200]">
           <slot name="user-menu">
-            <div class="cui-sidebar-user-menu-item" @click="emit('logout')">
+            <div class="px-3 py-2 text-[13px] text-[var(--app-foreground)] cursor-pointer rounded-md transition-colors duration-150 hover:bg-white/[0.06]" @click="emit('logout')">
               Sign out
             </div>
           </slot>
@@ -103,147 +100,8 @@ const initials = computed(() => {
     </aside>
 
     <!-- Main content -->
-    <main class="cui-sidebar-main">
+    <main class="flex-1 ml-[60px] min-h-screen">
       <slot />
     </main>
   </div>
 </template>
-
-<style>
-.cui-sidebar-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-.cui-sidebar {
-  width: 60px;
-  background: var(--app-background, #18181b);
-  border-right: 1px solid var(--app-border, #27272a);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 0;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 100;
-}
-
-.cui-sidebar-logo {
-  margin-bottom: 24px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--app-foreground, #fafafa);
-}
-
-.cui-sidebar-logo-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-}
-
-.cui-sidebar-nav {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.cui-sidebar-nav-item {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--app-muted, #71717a);
-  transition: all 0.15s;
-}
-
-.cui-sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--app-foreground, #fafafa);
-}
-
-.cui-sidebar-nav-item.active {
-  color: var(--app-accent, #FF2D55);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.cui-sidebar-tooltip {
-  position: absolute;
-  left: 52px;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 5px 10px;
-  background: var(--app-foreground, #fafafa);
-  color: var(--app-background, #18181b);
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 200;
-}
-
-.cui-sidebar-user {
-  position: relative;
-}
-
-.cui-sidebar-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.cui-sidebar-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cui-sidebar-user-menu {
-  position: absolute;
-  left: 52px;
-  bottom: 0;
-  background: var(--app-background, #18181b);
-  border: 1px solid var(--app-border, #27272a);
-  border-radius: 8px;
-  min-width: 160px;
-  padding: 4px;
-  z-index: 200;
-}
-
-.cui-sidebar-user-menu-item {
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--app-foreground, #fafafa);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-
-.cui-sidebar-user-menu-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.cui-sidebar-main {
-  flex: 1;
-  margin-left: 60px;
-  min-height: 100vh;
-}
-</style>

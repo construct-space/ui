@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * Switch — plain implementation with inline styles (no CSS class conflicts)
+ * Switch — Construct UI
+ * Toggle switch with size variants. Pure Tailwind, no scoped CSS.
  */
 const props = withDefaults(defineProps<{
   modelValue?: boolean
@@ -18,42 +19,24 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
-const sizes = {
-  xs: { w: 28, h: 16, thumb: 12 },
-  sm: { w: 32, h: 18, thumb: 14 },
-  md: { w: 40, h: 20, thumb: 16 },
+const sizeConfig = {
+  xs: { trackWidth: '28px', trackHeight: '16px', thumbSize: '12px', thumbOffset: '12px' },
+  sm: { trackWidth: '32px', trackHeight: '18px', thumbSize: '14px', thumbOffset: '14px' },
+  md: { trackWidth: '40px', trackHeight: '20px', thumbSize: '16px', thumbOffset: '20px' },
 } as const
 
-const s = computed(() => sizes[props.size])
+const currentSize = computed(() => sizeConfig[props.size])
 
 const trackStyle = computed(() => ({
-  position: 'relative' as const,
-  display: 'inline-flex',
-  flexShrink: 0,
-  width: `${s.value.w}px`,
-  height: `${s.value.h}px`,
-  borderRadius: '999px',
-  backgroundColor: props.modelValue ? 'var(--app-accent)' : 'var(--app-muted, #64748b)',
-  cursor: props.disabled ? 'not-allowed' : 'pointer',
-  transition: 'background-color 0.2s ease',
-  border: 'none',
-  padding: 0,
-  opacity: props.disabled ? 0.5 : 1,
-  outline: 'none',
+  width: currentSize.value.trackWidth,
+  height: currentSize.value.trackHeight,
 }))
 
 const thumbStyle = computed(() => ({
-  position: 'absolute' as const,
-  top: '50%',
-  left: '2px',
-  width: `${s.value.thumb}px`,
-  height: `${s.value.thumb}px`,
-  borderRadius: '999px',
-  backgroundColor: '#fff',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.18)',
-  transition: 'transform 0.2s ease',
+  width: currentSize.value.thumbSize,
+  height: currentSize.value.thumbSize,
   transform: props.modelValue
-    ? `translate(${s.value.w - s.value.thumb - 4}px, -50%)`
+    ? `translate(${currentSize.value.thumbOffset}, -50%)`
     : 'translate(0, -50%)',
 }))
 
@@ -64,18 +47,31 @@ function toggle() {
 </script>
 
 <template>
-  <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none" @click.prevent="toggle">
+  <label
+    class="inline-flex items-center gap-2 select-none"
+    :class="disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'"
+    @click.prevent="toggle"
+  >
     <button
       type="button"
       role="switch"
       :aria-checked="modelValue"
+      :data-state="modelValue ? 'checked' : 'unchecked'"
       :disabled="disabled"
+      class="relative inline-flex shrink-0 rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)]/35"
+      :class="[
+        modelValue ? 'bg-[var(--app-accent)]' : 'bg-[var(--app-border)]',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+      ]"
       :style="trackStyle"
       @click.stop="toggle"
     >
-      <span :style="thumbStyle" />
+      <span
+        class="absolute top-1/2 left-0.5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out"
+        :style="thumbStyle"
+      />
     </button>
-    <span v-if="label" style="font-size: 0.875rem; color: var(--app-foreground)">{{ label }}</span>
+    <span v-if="label" class="text-sm text-[var(--app-foreground)]">{{ label }}</span>
     <slot />
   </label>
 </template>

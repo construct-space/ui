@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export interface Theme {
   id: string
@@ -11,7 +11,6 @@ export interface Theme {
   accentFg: string
 }
 
-// Source of truth — synced with construct-app/frontend/composables/useAppTheme.ts
 const builtinThemes: Theme[] = [
   { id: 'vs', name: 'Light', mode: 'light', bg: '#f1f5f9', fg: '#0f172a', muted: '#64748b', accent: '#E63946', accentFg: '#ffffff' },
   { id: 'vs-dark', name: 'Dark', mode: 'dark', bg: '#0f172a', fg: '#e2e8f0', muted: '#64748b', accent: '#E63946', accentFg: '#ffffff' },
@@ -31,33 +30,38 @@ const builtinThemes: Theme[] = [
 
 const STORAGE_KEY = 'construct-theme'
 
-const currentThemeId = ref<string>('vs-dark')
+const currentThemeId = ref<string>('auto')
 const customThemes = ref<Theme[]>([])
+const osDark = ref(typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)').matches !== false : true)
 
 const allThemes = computed(() => [...builtinThemes, ...customThemes.value])
+
 const currentTheme = computed(() => {
   const id = currentThemeId.value
   if (id === 'auto') {
-    const prefersDark = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)').matches !== false : true
-    return allThemes.value.find(t => t.id === (prefersDark ? 'vs-dark' : 'vs')) || builtinThemes[1]
+    return osDark.value
+      ? allThemes.value.find(t => t.id === 'vs-dark')!
+      : allThemes.value.find(t => t.id === 'vs')!
   }
-  return allThemes.value.find(t => t.id === id) || builtinThemes[1]
+  return allThemes.value.find(t => t.id === id) || builtinThemes[1]!
 })
+
 const isDark = computed(() => currentTheme.value.mode === 'dark')
 
+// Color helpers
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '')
   return [parseInt(h.substring(0, 2), 16), parseInt(h.substring(2, 4), 16), parseInt(h.substring(4, 6), 16)]
 }
 
-function mix(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, t: number): string {
-  const m = (a: number, b: number) => Math.round(a + (b - a) * t)
-  return '#' + [m(r1, r2), m(g1, g2), m(b1, b2)].map(v => v.toString(16).padStart(2, '0')).join('')
-}
-
 function off(r: number, g: number, b: number, n: number): string {
   const c = (v: number) => Math.max(0, Math.min(255, v + n))
   return '#' + [c(r), c(g), c(b)].map(v => v.toString(16).padStart(2, '0')).join('')
+}
+
+function mix(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, t: number): string {
+  const m = (a: number, b: number) => Math.round(a + (b - a) * t)
+  return '#' + [m(r1, r2), m(g1, g2), m(b1, b2)].map(v => v.toString(16).padStart(2, '0')).join('')
 }
 
 function applyTheme(theme: Theme) {
@@ -66,32 +70,31 @@ function applyTheme(theme: Theme) {
   const [r, g, b] = hexToRgb(theme.bg)
   const [ar, ag, ab] = hexToRgb(theme.accent)
 
-  s.setProperty('--c-bg', theme.bg)
-  s.setProperty('--c-fg', theme.fg)
-  s.setProperty('--c-muted', theme.muted)
-  s.setProperty('--c-accent', theme.accent)
-  s.setProperty('--c-accent-fg', theme.accentFg)
-  s.setProperty('--c-border', dark ? off(r, g, b, 30) : mix(r, g, b, ar, ag, ab, 0.12))
-  s.setProperty('--c-surface', dark ? off(r, g, b, 10) : mix(r, g, b, ar, ag, ab, 0.04))
-  s.setProperty('--c-card', dark ? off(r, g, b, 16) : '#ffffff')
-  s.setProperty('--c-input', dark ? off(r, g, b, 24) : mix(r, g, b, ar, ag, ab, 0.07))
-
-  // Also set --app-* tokens for compatibility
+  // --app-* tokens (used by all UI components, app, spaces, infra)
   s.setProperty('--app-background', theme.bg)
   s.setProperty('--app-foreground', theme.fg)
   s.setProperty('--app-muted', theme.muted)
   s.setProperty('--app-accent', theme.accent)
+  s.setProperty('--app-accent-hover', dark ? off(ar, ag, ab, 20) : off(ar, ag, ab, -20))
   s.setProperty('--app-accent-foreground', theme.accentFg)
+  s.setProperty('--app-border', dark ? off(r, g, b, 30) : mix(r, g, b, ar, ag, ab, 0.12))
+  s.setProperty('--app-canvas-bg', dark ? off(r, g, b, -8) : off(r, g, b, -6))
+  s.setProperty('--app-card-bg', dark ? off(r, g, b, 16) : '#ffffff')
+  s.setProperty('--app-card-hover', dark ? off(r, g, b, 24) : off(r, g, b, -4))
+  s.setProperty('--app-input-bg', dark ? off(r, g, b, 24) : mix(r, g, b, ar, ag, ab, 0.07))
+  s.setProperty('--app-status-bg', dark ? off(r, g, b, 6) : off(r, g, b, -2))
+  s.setProperty('--app-surface', dark ? off(r, g, b, 10) : mix(r, g, b, ar, ag, ab, 0.04))
 
   document.documentElement.classList.toggle('dark', dark)
   document.documentElement.classList.toggle('light', !dark)
 }
 
 function setTheme(id: string) {
+  const theme = allThemes.value.find(t => t.id === id)
+  if (!theme) return
   currentThemeId.value = id
-  const theme = currentTheme.value // resolves 'auto' to vs/vs-dark
   applyTheme(theme)
-  try { localStorage.setItem(STORAGE_KEY, id) } catch { /* noop */ }
+  try { localStorage.setItem(STORAGE_KEY, id) } catch {}
 }
 
 function registerTheme(theme: Theme) {
@@ -101,11 +104,42 @@ function registerTheme(theme: Theme) {
 }
 
 function init() {
+  // Load saved theme
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) currentThemeId.value = saved
-  } catch { /* noop */ }
+  } catch {}
+
   applyTheme(currentTheme.value)
+
+  // Watch OS dark mode changes for auto theme
+  if (typeof window !== 'undefined') {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    mq.addEventListener('change', (e) => {
+      osDark.value = e.matches
+      if (currentThemeId.value === 'auto') {
+        applyTheme(currentTheme.value)
+      }
+    })
+  }
+
+  // Tauri: native theme listener (dynamic import — only runs inside Tauri)
+  ;(async () => {
+    try {
+      // @ts-ignore — @tauri-apps/api is provided by the host app
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      const win = getCurrentWindow()
+      const nativeTheme = await win.theme()
+      if (nativeTheme) {
+        osDark.value = nativeTheme === 'dark'
+        if (currentThemeId.value === 'auto') applyTheme(currentTheme.value)
+      }
+      await win.onThemeChanged(({ payload }: any) => {
+        osDark.value = payload === 'dark'
+        if (currentThemeId.value === 'auto') applyTheme(currentTheme.value)
+      })
+    } catch { /* not in Tauri */ }
+  })()
 }
 
 export function useTheme() {

@@ -39,152 +39,41 @@ const initials = computed(() => {
 </script>
 
 <template>
-  <div class="cui-header-layout">
-    <header class="cui-header">
-      <div class="cui-header-container">
-        <div class="cui-header-left">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-[var(--app-border)] py-3.5 sticky top-0 z-[100] bg-[color-mix(in_srgb,var(--app-background)_92%,transparent)] backdrop-blur-md">
+      <div class="max-w-[1200px] mx-auto px-6 flex items-center justify-between">
+        <div class="flex items-center gap-6">
           <slot name="logo">
-            <span class="cui-header-logo" @click="emit('navigate', '/')">
-              construct <span class="cui-header-logo-sub">/ {{ serviceName }}</span>
+            <span class="text-base font-bold text-[var(--app-foreground)] cursor-pointer tracking-wide" @click="emit('navigate', '/')">
+              construct <span class="text-[var(--app-muted)] font-normal">/ {{ serviceName }}</span>
             </span>
           </slot>
-          <nav v-if="navItems.length" class="cui-header-nav">
+          <nav v-if="navItems.length" class="flex items-center gap-4">
             <a
               v-for="item in navItems"
               :key="item.to"
-              :class="{ active: item.active }"
+              class="text-[13px] no-underline cursor-pointer transition-colors duration-150"
+              :class="item.active ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'"
               @click.prevent="emit('navigate', item.to)"
             >
               {{ item.label }}
             </a>
           </nav>
         </div>
-        <div class="cui-header-right">
+        <div class="flex items-center gap-3">
           <slot name="actions" />
-          <div v-if="showAuth && userName" class="cui-header-avatar" :style="{ background: accentColor }" @click="emit('logout')">
-            <img v-if="userAvatar" :src="userAvatar" :alt="userName" />
+          <div v-if="showAuth && userName" class="size-8 rounded-full flex items-center justify-center text-white text-[13px] font-semibold cursor-pointer overflow-hidden" :style="{ background: accentColor }" @click="emit('logout')">
+            <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
             <span v-else>{{ initials }}</span>
           </div>
-          <button v-else-if="showAuth" class="cui-header-signin" @click="emit('login')">
+          <button v-else-if="showAuth" class="px-4 py-1.5 text-[13px] font-medium bg-[var(--app-accent)] text-white border-none rounded-md cursor-pointer transition-opacity duration-150 hover:opacity-90 font-[inherit]" @click="emit('login')">
             Sign in
           </button>
         </div>
       </div>
     </header>
-    <main class="cui-header-main">
+    <main class="flex-1">
       <slot />
     </main>
   </div>
 </template>
-
-<style>
-.cui-header-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.cui-header {
-  border-bottom: 1px solid var(--app-border, #27272a);
-  padding: 14px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: color-mix(in srgb, var(--app-background) 92%, transparent);
-  backdrop-filter: blur(16px);
-}
-
-.cui-header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.cui-header-left {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.cui-header-logo {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--app-foreground, #fafafa);
-  cursor: pointer;
-  letter-spacing: 0.02em;
-}
-
-.cui-header-logo-sub {
-  color: var(--app-muted, #71717a);
-  font-weight: 400;
-}
-
-.cui-header-nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.cui-header-nav a {
-  font-size: 13px;
-  color: var(--app-muted, #71717a);
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.cui-header-nav a:hover,
-.cui-header-nav a.active {
-  color: var(--app-foreground, #fafafa);
-}
-
-.cui-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cui-header-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.cui-header-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cui-header-signin {
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  background: var(--app-accent, #FF2D55);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-}
-
-.cui-header-signin:hover {
-  opacity: 0.9;
-}
-
-.cui-header-main {
-  flex: 1;
-}
-</style>
