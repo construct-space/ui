@@ -140,7 +140,7 @@ function isRowSelected(row: Record<string, any>, index: number) {
 </script>
 
 <template>
-  <div class="w-full overflow-auto rounded-lg border border-[var(--app-border)]">
+  <div class="w-full overflow-auto rounded-sm border border-[var(--app-border)]">
     <table class="w-full border-collapse" :class="textSize">
       <!-- Header -->
       <thead>
@@ -176,7 +176,7 @@ function isRowSelected(row: Record<string, any>, index: number) {
             :class="[
               headerPadding,
               alignClass(col.align),
-              'font-medium text-[var(--app-muted)] whitespace-nowrap select-none',
+              'text-[10px] tracking-[0.1em] uppercase font-medium text-[var(--app-muted)] whitespace-nowrap select-none',
               col.sortable ? 'cursor-pointer hover:text-[var(--app-foreground)] transition-colors' : '',
               stickyHeader ? 'sticky top-0 z-10 bg-[color-mix(in_srgb,var(--app-background)_95%,var(--app-foreground))]' : '',
             ]"

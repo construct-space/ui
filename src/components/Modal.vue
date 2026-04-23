@@ -58,17 +58,17 @@ useEscapeKey(() => { if (props.open) close() })
           :class="[
             'relative z-10 bg-[var(--app-background)] shadow-xl overflow-hidden flex flex-col',
             fullscreen
-              ? 'inset-2 absolute rounded-xl'
-              : ['rounded-lg border border-[var(--app-border)]', ui?.content || 'w-full max-w-lg max-h-[85vh]'],
+              ? 'inset-2 absolute rounded-sm'
+              : ['rounded-sm border border-[var(--app-border)]', ui?.content || 'w-full max-w-lg max-h-[85vh]'],
           ]"
         >
           <!-- Header -->
           <div class="flex items-center justify-between px-6 pt-6 pb-0 shrink-0">
             <div v-if="$slots.header || title || description" class="flex-1 min-w-0">
               <slot name="header">
-                <div class="flex flex-col gap-1">
-                  <h2 v-if="title" class="text-lg font-semibold text-[var(--app-foreground)]">{{ title }}</h2>
-                  <p v-if="description" class="text-sm text-[var(--app-muted)]">{{ description }}</p>
+                <div class="flex flex-col gap-1.5">
+                  <h2 v-if="title" class="text-[11px] tracking-[0.12em] uppercase font-medium text-[var(--app-muted)]">{{ title }}</h2>
+                  <p v-if="description" class="text-base text-[var(--app-foreground)]">{{ description }}</p>
                 </div>
               </slot>
             </div>

@@ -20,16 +20,16 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <nav class="flex items-center gap-1.5 text-sm">
+  <nav class="flex items-center gap-2 text-[11px] tracking-[0.08em] uppercase font-medium">
     <template v-for="(crumb, i) in items" :key="i">
-      <svg v-if="i > 0" class="size-3 shrink-0" style="color: var(--app-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <span v-if="i > 0" class="shrink-0 select-none" style="color: var(--app-muted); opacity: 0.5">/</span>
       <button
         v-if="crumb.to"
-        class="hover:underline transition-colors"
+        class="hover:text-[var(--app-foreground)] transition-colors"
         style="color: var(--app-muted)"
         @click="emit('navigate', crumb)"
       >{{ crumb.label }}</button>
-      <span v-else class="font-medium" style="color: var(--app-foreground)">{{ crumb.label }}</span>
+      <span v-else style="color: var(--app-foreground)">{{ crumb.label }}</span>
     </template>
   </nav>
 </template>

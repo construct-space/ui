@@ -54,25 +54,25 @@ function toggle(value: string) {
 }
 
 const sizeClasses: Record<string, string> = {
-  xs: 'px-2 py-0.5 text-[11px]',
-  sm: 'px-3 py-1 text-xs',
-  md: 'px-4 py-1.5 text-sm',
+  xs: 'px-2.5 py-1 text-[9px] tracking-[0.08em] uppercase',
+  sm: 'px-3.5 py-1.5 text-[10px] tracking-[0.08em] uppercase',
+  md: 'px-4 py-2 text-[11px] tracking-[0.08em] uppercase',
 }
 </script>
 
 <template>
   <div
-    class="inline-flex rounded-lg p-0.5 gap-0.5"
+    class="inline-flex rounded-sm p-0.5 gap-0.5"
     style="background: color-mix(in srgb, var(--app-muted) 8%, transparent)"
   >
     <button
       v-for="opt in getOptions()"
       :key="opt.value"
       :class="[
-        'rounded-md font-medium transition-colors cursor-pointer',
+        'rounded-sm font-medium transition-colors cursor-pointer',
         sizeClasses[size],
         isSelected(opt.value)
-          ? 'bg-[var(--app-accent)] text-white shadow-sm'
+          ? 'bg-[var(--app-background)] text-[var(--app-foreground)] shadow-sm'
           : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]',
         opt.disabled || disabled ? 'opacity-40 cursor-not-allowed' : '',
       ]"

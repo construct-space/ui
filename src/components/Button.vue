@@ -54,12 +54,13 @@ const sizeClasses = computed(() => {
     }
     return map[props.size] || map.md
   }
+  // Editorial: uppercase labels with wide tracking, smaller type
   const map: Record<string, string> = {
-    '2xs': 'px-1.5 py-0.5 text-[10px] gap-0.5',
-    xs: 'px-2 py-1 text-xs gap-1',
-    sm: 'px-2.5 py-1 text-xs gap-1',
-    md: 'px-3 py-1.5 text-sm gap-1.5',
-    lg: 'px-4 py-2 text-base gap-2',
+    '2xs': 'px-2 py-0.5 text-[9px] tracking-[0.08em] uppercase gap-0.5',
+    xs: 'px-2.5 py-1 text-[10px] tracking-[0.08em] uppercase gap-1',
+    sm: 'px-3 py-1.5 text-[10px] tracking-[0.08em] uppercase gap-1',
+    md: 'px-4 py-2 text-[11px] tracking-[0.08em] uppercase gap-1.5',
+    lg: 'px-5 py-2.5 text-xs tracking-[0.08em] uppercase gap-2',
   }
   return map[props.size] || map.md
 })
@@ -116,7 +117,7 @@ const colorVariantClasses = computed(() => {
     :href="to"
     :disabled="disabled || loading"
     :class="[
-      'inline-flex items-center justify-center rounded-md font-medium transition-all duration-150 cursor-pointer select-none',
+      'inline-flex items-center justify-center rounded-sm font-medium transition-all duration-150 cursor-pointer select-none',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-accent focus-visible:ring-offset-1',
       'disabled:opacity-50 disabled:cursor-not-allowed',
       sizeClasses,

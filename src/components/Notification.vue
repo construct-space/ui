@@ -39,7 +39,7 @@ function getIconColorClass(color?: string): string {
         move-class="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
       >
         <div v-for="t in notifications" :key="t.id" :class="[
-          'rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm',
+          'rounded-sm border px-4 py-3 shadow-lg backdrop-blur-sm',
           'bg-[var(--app-background)]',
           getColorClass(t.color),
         ]">
@@ -78,14 +78,14 @@ function getIconColorClass(color?: string): string {
             </div>
 
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-[var(--app-foreground)]">
+              <p :class="['text-[11px] tracking-[0.12em] uppercase font-medium', getIconColorClass(t.color)]">
                 {{ t.title }}
               </p>
-              <p v-if="t.description" class="mt-0.5 text-xs text-[var(--app-muted)]">
+              <p v-if="t.description" class="mt-1.5 text-sm text-[var(--app-foreground)]">
                 {{ t.description }}
               </p>
               <button v-if="t.action"
-                class="mt-1.5 text-xs font-medium px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+                class="mt-2 text-[10px] tracking-[0.08em] uppercase font-medium px-2.5 py-1 rounded-sm transition-colors cursor-pointer"
                 :class="[getIconColorClass(t.color), 'hover:bg-white/10 border border-current/20']"
                 @click="t.action!.onClick(); notification.remove(t.id)">
                 {{ t.action.label }}

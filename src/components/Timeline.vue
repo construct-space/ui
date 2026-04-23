@@ -114,8 +114,7 @@ function lineClasses(item: TimelineItem): string {
               <div class="min-w-0">
                 <p
                   :class="[
-                    'font-medium text-[var(--app-foreground)] leading-tight',
-                    isCompact ? 'text-xs' : 'text-sm',
+                    'text-[11px] tracking-[0.08em] uppercase font-medium text-[var(--app-foreground)] leading-tight',
                     item.status === 'active' ? 'text-[var(--app-accent)]' : '',
                     item.status === 'pending' ? 'text-[var(--app-muted)]' : '',
                   ]"
@@ -125,8 +124,8 @@ function lineClasses(item: TimelineItem): string {
                 <p
                   v-if="item.description"
                   :class="[
-                    'text-[var(--app-muted)] mt-0.5 leading-snug',
-                    isCompact ? 'text-[10px]' : 'text-xs',
+                    'text-[var(--app-foreground)] mt-1 leading-snug',
+                    isCompact ? 'text-xs' : 'text-sm',
                   ]"
                 >
                   {{ item.description }}
@@ -135,8 +134,7 @@ function lineClasses(item: TimelineItem): string {
               <span
                 v-if="item.timestamp"
                 :class="[
-                  'flex-shrink-0 text-[var(--app-muted)]',
-                  isCompact ? 'text-[10px]' : 'text-xs',
+                  'flex-shrink-0 text-[var(--app-muted)] text-[10px] tracking-[0.08em] uppercase',
                 ]"
               >
                 {{ formatTimestamp(item.timestamp) }}
@@ -170,8 +168,7 @@ function lineClasses(item: TimelineItem): string {
           <slot name="item" :item="item" :index="index">
             <p
               :class="[
-                'font-medium text-[var(--app-foreground)] leading-tight',
-                isCompact ? 'text-xs' : 'text-sm',
+                'text-[11px] tracking-[0.08em] uppercase font-medium text-[var(--app-foreground)] leading-tight',
                 item.status === 'active' ? 'text-[var(--app-accent)]' : '',
                 item.status === 'pending' ? 'text-[var(--app-muted)]' : '',
               ]"
@@ -181,18 +178,15 @@ function lineClasses(item: TimelineItem): string {
             <p
               v-if="item.description"
               :class="[
-                'text-[var(--app-muted)] mt-0.5 leading-snug',
-                isCompact ? 'text-[10px]' : 'text-xs',
+                'text-[var(--app-foreground)] mt-1 leading-snug',
+                isCompact ? 'text-xs' : 'text-sm',
               ]"
             >
               {{ item.description }}
             </p>
             <span
               v-if="item.timestamp"
-              :class="[
-                'text-[var(--app-muted)] mt-1 block',
-                isCompact ? 'text-[10px]' : 'text-xs',
-              ]"
+              class="text-[var(--app-muted)] text-[10px] tracking-[0.08em] uppercase mt-1.5 block"
             >
               {{ formatTimestamp(item.timestamp) }}
             </span>

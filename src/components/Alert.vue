@@ -65,7 +65,7 @@ const defaultIcon = computed(() => {
 <template>
   <div
     :class="[
-      'rounded-lg border px-4 py-3 text-[var(--app-foreground)]',
+      'rounded-sm border px-4 py-3 text-[var(--app-foreground)]',
       colorClasses,
     ]"
     role="alert"
@@ -77,12 +77,12 @@ const defaultIcon = computed(() => {
       />
 
       <div class="flex-1 min-w-0">
-        <p v-if="title" class="text-sm font-medium">
+        <p v-if="title" :class="['text-[11px] tracking-[0.12em] uppercase font-medium', iconColorClass]">
           {{ title }}
         </p>
         <p
           v-if="description"
-          :class="['text-xs text-[var(--app-muted)]', title ? 'mt-0.5' : '']"
+          :class="['text-sm text-[var(--app-foreground)]', title ? 'mt-1.5' : '']"
         >
           {{ description }}
         </p>

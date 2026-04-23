@@ -77,7 +77,7 @@ function toIconify(name: string) {
       class="border-b border-[var(--app-border)]"
     >
       <button
-        :class="ui?.trigger || 'flex w-full items-center justify-between py-3 text-sm font-medium text-[var(--app-foreground)] hover:underline'"
+        :class="ui?.trigger || 'flex w-full items-center justify-between py-4 text-[11px] tracking-[0.12em] uppercase font-medium text-[var(--app-foreground)] hover:text-[var(--app-muted)] transition-colors'"
         :disabled="item.disabled"
         @click="toggle(item.value || String(i), item.disabled)"
       >
@@ -111,9 +111,9 @@ function toIconify(name: string) {
         leave-from-class="opacity-100 max-h-[500px]"
       >
         <div v-if="isOpen(item.value || String(i))" class="overflow-hidden text-sm">
-          <div class="text-[var(--app-muted)]">
+          <div class="text-[var(--app-foreground)]">
             <slot name="body" :item="item">
-              <div class="pb-3">
+              <div class="pb-4">
                 <slot :name="item.slot || item.value || String(i)" :item="item">
                   {{ item.content }}
                 </slot>

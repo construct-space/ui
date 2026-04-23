@@ -29,10 +29,11 @@ const isNamedColor = computed(() => {
 })
 
 const sizeClasses = computed(() => {
+  // Editorial: uppercase + wide tracking
   const map: Record<string, string> = {
-    sm: 'px-1.5 py-0.5 text-[10px] gap-1',
-    md: 'px-2 py-0.5 text-xs gap-1.5',
-    lg: 'px-3 py-1 text-sm gap-1.5',
+    sm: 'px-2 py-0.5 text-[9px] tracking-[0.08em] uppercase gap-1',
+    md: 'px-2.5 py-0.5 text-[10px] tracking-[0.08em] uppercase gap-1.5',
+    lg: 'px-3 py-1 text-[11px] tracking-[0.08em] uppercase gap-1.5',
   }
   return map[props.size] || map.md
 })
@@ -127,7 +128,7 @@ const customStyle = computed(() => {
 <template>
   <span
     :class="[
-      'inline-flex items-center rounded-full font-medium',
+      'inline-flex items-center rounded-sm font-medium',
       variant === 'outline' && !isCustomColor && !isNamedColor ? 'border border-[var(--app-accent)]' : '',
       variant === 'outline' && isNamedColor ? 'border' : '',
       variantClasses,

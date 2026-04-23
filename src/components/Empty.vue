@@ -23,32 +23,32 @@ function toIconify(name: string) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+  <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div
       v-if="icon"
-      class="mb-3 flex items-center justify-center size-12 rounded-full bg-[color-mix(in_srgb,var(--app-muted)_15%,transparent)]"
+      class="mb-4 flex items-center justify-center size-12 rounded-sm border border-[var(--app-border)]"
     >
       <Icon
         :icon="toIconify(icon)"
-        class="size-6 text-[var(--app-muted)]"
+        class="size-5 text-[var(--app-muted)]"
       />
     </div>
 
     <h3
       v-if="title"
-      class="text-sm font-medium text-[var(--app-foreground)]"
+      class="text-[11px] tracking-[0.12em] uppercase font-medium text-[var(--app-muted)]"
     >
       {{ title }}
     </h3>
 
     <p
       v-if="description"
-      :class="['text-xs text-[var(--app-muted)] max-w-xs', title ? 'mt-1' : '']"
+      :class="['text-sm text-[var(--app-foreground)] max-w-xs', title ? 'mt-2' : '']"
     >
       {{ description }}
     </p>
 
-    <div v-if="$slots.default" :class="[title || description ? 'mt-4' : '']">
+    <div v-if="$slots.default" :class="[title || description ? 'mt-5' : '']">
       <slot />
     </div>
   </div>

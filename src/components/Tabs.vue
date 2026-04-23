@@ -113,25 +113,25 @@ const resolvedTabs = computed<ResolvedTab[]>(() => {
 
 const listClass = computed(() => {
   if (props.variant === 'segmented') {
-    return 'inline-flex w-fit gap-1 rounded-lg bg-[color-mix(in_srgb,var(--app-muted)_8%,transparent)] p-1'
+    return 'inline-flex w-fit gap-0.5 rounded-sm bg-[color-mix(in_srgb,var(--app-muted)_8%,transparent)] p-0.5'
   }
-  return 'flex gap-1 border-b border-[var(--app-border)]'
+  return 'flex gap-4 border-b border-[var(--app-border)]'
 })
 
 function triggerClasses(item: ResolvedTab) {
   const isActive = props.modelValue === item.value
-  const base = 'inline-flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer'
+  const base = 'inline-flex items-center gap-1.5 text-[11px] tracking-[0.08em] uppercase font-medium transition-colors cursor-pointer'
   const disabledCls = item.disabled ? 'pointer-events-none opacity-50' : ''
 
   if (props.variant === 'segmented') {
-    const activeCls = isActive ? 'bg-[var(--app-accent)] text-white' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
-    return [base, 'rounded-md px-4 py-1.5', activeCls, disabledCls]
+    const activeCls = isActive ? 'bg-[var(--app-background)] text-[var(--app-foreground)] shadow-sm' : 'text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
+    return [base, 'rounded-sm px-3.5 py-1.5', activeCls, disabledCls]
   }
 
   const activeCls = isActive
-    ? 'text-[var(--app-accent)] border-[var(--app-accent)]'
+    ? 'text-[var(--app-foreground)] border-[var(--app-foreground)]'
     : 'border-transparent text-[var(--app-muted)] hover:text-[var(--app-foreground)]'
-  return [base, 'border-b-2 px-3 py-2 -mb-px', activeCls, disabledCls]
+  return [base, 'border-b px-0 py-3 -mb-px', activeCls, disabledCls]
 }
 
 const contentClass = computed(() => props.variant === 'segmented'

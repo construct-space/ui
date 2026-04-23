@@ -43,17 +43,18 @@ const colorVariantClasses = computed(() => {
 })
 
 const sizeClasses = computed(() => {
+  // Editorial: uppercase, wide-tracked, sharper corners
   const map: Record<string, string> = {
-    xs: 'px-1.5 py-0.5 text-[10px]',
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-2.5 py-1 text-xs',
+    xs: 'px-1.5 py-0.5 text-[9px] tracking-[0.08em] uppercase',
+    sm: 'px-2 py-0.5 text-[10px] tracking-[0.08em] uppercase',
+    md: 'px-2.5 py-1 text-[11px] tracking-[0.08em] uppercase',
   }
   return map[props.size] || map.sm
 })
 </script>
 
 <template>
-  <span :class="['inline-flex items-center rounded-full font-medium', colorVariantClasses, sizeClasses]">
+  <span :class="['inline-flex items-center rounded-sm font-medium', colorVariantClasses, sizeClasses]">
     <slot>{{ label }}</slot>
   </span>
 </template>
