@@ -67,7 +67,7 @@ useEscapeKey(() => { if (props.open) close() })
             <div v-if="$slots.header || title || description" class="flex-1 min-w-0">
               <slot name="header">
                 <div class="flex flex-col gap-1.5">
-                  <h2 v-if="title" class="text-[11px] tracking-[0.12em] uppercase font-medium text-[var(--app-muted)]">{{ title }}</h2>
+                  <h2 v-if="title" class="text-[11px] tracking-[0.12em] uppercase font-normal text-[var(--app-muted)]">{{ title }}</h2>
                   <p v-if="description" class="text-base text-[var(--app-foreground)]">{{ description }}</p>
                 </div>
               </slot>

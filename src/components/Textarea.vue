@@ -45,7 +45,7 @@ function onInput(event: Event) {
 <template>
   <textarea
     :class="[
-      'w-full rounded-md border transition-colors duration-150 resize-y',
+      'w-full rounded-sm border transition-colors duration-150 resize-y',
       'text-[var(--app-foreground)] placeholder:text-[var(--app-muted)]/50 outline-none',
       'focus:border-[var(--app-accent)]',
       'disabled:opacity-50 disabled:cursor-not-allowed',

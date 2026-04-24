@@ -44,10 +44,10 @@ function toIconify(name: string) {
 }
 
 const sizeClasses: Record<string, string> = {
-  xs: 'py-0.5 text-xs',
-  sm: 'py-1 text-xs',
-  md: 'py-1.5 text-sm',
-  lg: 'py-2 text-base',
+  xs: 'h-6 text-xs',
+  sm: 'h-7 text-xs',
+  md: 'h-8 text-sm',
+  lg: 'h-9 text-base',
 }
 
 const paddingClasses = computed(() => {
@@ -68,7 +68,7 @@ function onInput(event: Event) {
 
 <template>
   <div
-    class="relative inline-flex items-center w-full rounded-md border transition-colors duration-150 overflow-hidden"
+    class="relative inline-flex items-center w-full rounded-sm border transition-colors duration-150 overflow-hidden"
     :class="[
       variant === 'none'
         ? 'border-transparent bg-transparent'

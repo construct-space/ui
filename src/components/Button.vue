@@ -55,12 +55,13 @@ const sizeClasses = computed(() => {
     return map[props.size] || map.md
   }
   // Editorial: uppercase labels with wide tracking, smaller type
+  // Heights aligned with Input/Select: xs=24, sm=28, md=32, lg=36
   const map: Record<string, string> = {
-    '2xs': 'px-2 py-0.5 text-[9px] tracking-[0.08em] uppercase gap-0.5',
-    xs: 'px-2.5 py-1 text-[10px] tracking-[0.08em] uppercase gap-1',
-    sm: 'px-3 py-1.5 text-[10px] tracking-[0.08em] uppercase gap-1',
-    md: 'px-4 py-2 text-[11px] tracking-[0.08em] uppercase gap-1.5',
-    lg: 'px-5 py-2.5 text-xs tracking-[0.08em] uppercase gap-2',
+    '2xs': 'h-5 px-2 text-[9px] tracking-[0.08em] uppercase gap-0.5',
+    xs: 'h-6 px-2.5 text-[10px] tracking-[0.08em] uppercase gap-1',
+    sm: 'h-7 px-3 text-[10px] tracking-[0.08em] uppercase gap-1',
+    md: 'h-8 px-4 text-[11px] tracking-[0.08em] uppercase gap-1.5',
+    lg: 'h-9 px-5 text-xs tracking-[0.08em] uppercase gap-2',
   }
   return map[props.size] || map.md
 })
