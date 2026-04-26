@@ -26,6 +26,7 @@ const builtinThemes: Theme[] = [
   { id: 'tokyo-night', name: 'Tokyo Night', mode: 'dark', bg: '#1a1b26', fg: '#c0caf5', muted: '#565f89', accent: '#7aa2f7', accentFg: '#ffffff' },
   { id: 'hc-black', name: 'High Contrast Dark', mode: 'dark', bg: '#000000', fg: '#ffffff', muted: '#808080', accent: '#ffff00', accentFg: '#000000' },
   { id: 'hc-light', name: 'High Contrast Light', mode: 'light', bg: '#ffffff', fg: '#000000', muted: '#808080', accent: '#0000ff', accentFg: '#ffffff' },
+  { id: 'anthropic', name: 'Anthropic', mode: 'light', bg: '#f0ebe1', fg: '#191918', muted: '#8a8478', accent: '#da7756', accentFg: '#ffffff' },
 ]
 
 const STORAGE_KEY = 'construct-theme'
