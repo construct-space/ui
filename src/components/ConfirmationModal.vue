@@ -35,6 +35,7 @@ const isOpen = computed({
 })
 
 const isDestructive = computed(() => props.confirmColor === 'error')
+let closeReason: 'confirm' | 'cancel' | null = null
 
 const iconName = computed(() => {
   switch (props.confirmColor) {
@@ -57,16 +58,29 @@ const iconColorClass = computed(() => {
 })
 
 function handleConfirm() {
+  if (props.loading) return
+  closeReason = 'confirm'
   emit('confirm')
+  isOpen.value = false
 }
 
 function handleCancel() {
+  if (props.loading) return
+  closeReason = 'cancel'
   emit('cancel')
   isOpen.value = false
 }
 
 watch(isOpen, (newValue) => {
-  if (!newValue) emit('cancel')
+  if (newValue) {
+    closeReason = null
+    return
+  }
+  if (closeReason) {
+    closeReason = null
+    return
+  }
+  emit('cancel')
 })
 </script>
 

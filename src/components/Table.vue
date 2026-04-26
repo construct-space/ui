@@ -9,7 +9,7 @@ export interface TableColumn {
   label: string
   sortable?: boolean
   width?: string
-  align?: 'left' | 'center' | 'right'
+  align?: string
 }
 
 const props = withDefaults(defineProps<{
@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
   striped?: boolean
   size?: 'compact' | 'comfortable'
   stickyHeader?: boolean
-  rowKey?: string
+  rowKey?: string | ((row: Record<string, any>, index: number) => string | number)
   skeletonRows?: number
 }>(), {
   loading: false,
@@ -67,6 +67,9 @@ const textSize = computed(() => {
 })
 
 function getRowKey(row: Record<string, any>, index: number): string | number {
+  if (typeof props.rowKey === 'function') {
+    return props.rowKey(row, index)
+  }
   return row[props.rowKey] ?? index
 }
 

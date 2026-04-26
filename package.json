@@ -41,6 +41,7 @@
   },
   "scripts": {
     "build": "vite build && vue-tsc --emitDeclarationOnly",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.type-tests.json",
     "dev": "vite build --watch",
     "prepublishOnly": "bun run build",
     "release": "bun run build && npm publish"

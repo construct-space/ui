@@ -33,6 +33,16 @@ withDefaults(defineProps<{
   hoverable: false,
   interactive: false,
 })
+
+defineSlots<{
+  header?: () => any
+  title?: () => any
+  description?: () => any
+  accessory?: () => any
+  default?: () => any
+  footer?: () => any
+  'footer-end'?: () => any
+}>()
 </script>
 
 <template>
@@ -48,18 +58,22 @@ withDefaults(defineProps<{
   >
     <!-- Header -->
     <div
-      v-if="$slots.header || title || description || $slots.accessory"
+      v-if="$slots.header || title || description || $slots.title || $slots.description || $slots.accessory"
       class="px-5 pt-5 pb-4 flex items-start justify-between gap-3"
     >
-      <div class="min-w-0 flex-1 flex flex-col">
-        <slot name="header">
-          <h3 v-if="title" class="text-sm tracking-[0.08em] uppercase font-normal text-[var(--app-foreground)] leading-tight after:content-['.'] after:text-[var(--app-accent)]">{{ title }}</h3>
-          <p v-if="description" class="text-sm text-[var(--app-muted)] mt-0.5">{{ description }}</p>
-        </slot>
-      </div>
-      <div v-if="$slots.accessory" class="shrink-0">
-        <slot name="accessory" />
-      </div>
+      <slot name="header">
+        <div class="min-w-0 flex-1 flex flex-col">
+          <slot name="title">
+            <h3 v-if="title" class="text-sm tracking-[0.08em] uppercase font-normal text-[var(--app-foreground)] leading-tight after:content-['.'] after:text-[var(--app-accent)]">{{ title }}</h3>
+          </slot>
+          <slot name="description">
+            <p v-if="description" class="text-sm text-[var(--app-muted)] mt-0.5">{{ description }}</p>
+          </slot>
+        </div>
+        <div v-if="$slots.accessory" class="shrink-0">
+          <slot name="accessory" />
+        </div>
+      </slot>
     </div>
 
     <!-- Body -->
@@ -67,9 +81,9 @@ withDefaults(defineProps<{
       v-if="$slots.default"
       :class="[
         'px-5',
-        $slots.header || title || description || $slots.accessory ? '' : 'pt-5',
+        $slots.header || title || description || $slots.title || $slots.description || $slots.accessory ? '' : 'pt-5',
         $slots.footer || $slots['footer-end'] ? 'pb-4' : 'pb-5',
-        ($slots.header || title || description || $slots.accessory) && ($slots.footer || $slots['footer-end']) ? 'py-4' : '',
+        ($slots.header || title || description || $slots.title || $slots.description || $slots.accessory) && ($slots.footer || $slots['footer-end']) ? 'py-4' : '',
       ]"
     >
       <slot />

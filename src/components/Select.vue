@@ -5,20 +5,23 @@
  */
 import { Icon } from '@iconify/vue'
 
+type SelectValue = string | number | null
+
 export interface SelectOption {
   label: string
-  value: string | number | null
+  value: SelectValue
   disabled?: boolean
   [key: string]: unknown
 }
 
 const props = withDefaults(defineProps<{
-  modelValue?: string | number | null
+  modelValue?: SelectValue | SelectValue[]
   options?: SelectOption[] | string[]
   items?: SelectOption[] | string[]
   placeholder?: string
   size?: 'xs' | 'sm' | 'md' | 'lg'
   disabled?: boolean
+  multiple?: boolean
   icon?: string
   variant?: 'outline' | 'soft' | 'none'
   valueAttribute?: string
@@ -29,12 +32,13 @@ const props = withDefaults(defineProps<{
   placeholder: 'Select...',
   size: 'md',
   disabled: false,
+  multiple: false,
   valueAttribute: 'value',
   optionAttribute: 'label',
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string | string[]]
 }>()
 
 function toIconify(name: string) {
@@ -55,9 +59,18 @@ const normalizedOptions = computed((): SelectOption[] => {
   })
 })
 
+const selectedValues = computed(() => {
+  if (!Array.isArray(props.modelValue)) return new Set<string>()
+  return new Set(props.modelValue.map(value => String(value)))
+})
+
 function onChange(e: Event) {
-  const val = (e.target as HTMLSelectElement).value
-  emit('update:modelValue', val)
+  const select = e.target as HTMLSelectElement
+  if (props.multiple) {
+    emit('update:modelValue', Array.from(select.selectedOptions, option => option.value))
+    return
+  }
+  emit('update:modelValue', select.value)
 }
 
 const sizeClasses: Record<string, string> = {
@@ -84,8 +97,9 @@ const sizeClasses: Record<string, string> = {
       class="ml-2 shrink-0 size-3.5 text-[var(--app-muted)] pointer-events-none"
     />
     <select
-      :value="modelValue ?? ''"
+      :value="multiple ? undefined : modelValue ?? ''"
       :disabled="disabled"
+      :multiple="multiple"
       :class="[
         'flex-1 min-w-0 bg-transparent text-[var(--app-foreground)] appearance-none outline-none cursor-pointer',
         'disabled:cursor-not-allowed',
@@ -94,11 +108,12 @@ const sizeClasses: Record<string, string> = {
       ]"
       @change="onChange"
     >
-      <option v-if="placeholder" value="" disabled class="bg-[var(--app-background)]">{{ placeholder }}</option>
+      <option v-if="placeholder && !multiple" value="" disabled class="bg-[var(--app-background)]">{{ placeholder }}</option>
       <option
         v-for="opt in normalizedOptions"
         :key="String(opt.value)"
         :value="opt.value"
+        :selected="multiple ? selectedValues.has(String(opt.value)) : undefined"
         :disabled="opt.disabled"
         class="bg-[var(--app-background)]"
       >
