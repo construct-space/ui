@@ -70,10 +70,10 @@ defineSlots<{
             <p v-if="description" class="text-sm text-[var(--app-muted)] mt-0.5">{{ description }}</p>
           </slot>
         </div>
-        <div v-if="$slots.accessory" class="shrink-0">
-          <slot name="accessory" />
-        </div>
       </slot>
+      <div v-if="$slots.accessory" class="shrink-0">
+        <slot name="accessory" />
+      </div>
     </div>
 
     <!-- Body -->
