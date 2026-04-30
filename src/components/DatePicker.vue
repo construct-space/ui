@@ -225,14 +225,20 @@ function onInputFocus() {
   setTimeout(() => inputEl.value?.select(), 0)
 }
 
-const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 text-xs', md: 'py-1.5 text-sm', lg: 'py-2 text-base' }
+const sizeClasses: Record<string, string> = {
+  xs: 'h-6 text-xs',
+  sm: 'h-7 text-xs',
+  md: 'h-8 text-sm',
+  lg: 'h-9 text-base',
+}
 </script>
 
 <template>
   <div class="relative w-full">
     <div
-      class="relative inline-flex items-center w-full rounded-md border transition-colors duration-150 overflow-hidden"
+      class="relative inline-flex items-center w-full rounded-sm border transition-colors duration-150 overflow-hidden"
       :class="[
+        sizeClasses[size],
         'border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-background)_80%,var(--app-canvas-bg)_20%)]',
         open ? 'border-[var(--app-accent)]' : 'hover:border-[var(--app-muted)]/50',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
@@ -255,8 +261,7 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'flex-1 px-2 bg-transparent outline-none',
-          sizeClasses[size],
+          'flex-1 h-full px-2 bg-transparent outline-none min-w-0',
           modelValue || inputText ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50',
         ]"
         autocomplete="off"
@@ -269,7 +274,7 @@ const sizeClasses: Record<string, string> = { xs: 'py-0.5 text-xs', sm: 'py-1 te
       />
       <span
         v-else
-        :class="['flex-1 px-2.5 truncate cursor-pointer', sizeClasses[size], modelValue ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50']"
+        :class="['flex-1 px-2.5 truncate cursor-pointer', modelValue ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50']"
         @click="toggleOpen"
       >
         {{ displayValue || placeholder }}
