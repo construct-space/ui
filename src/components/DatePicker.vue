@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
   placeholder: 'MM/DD/YYYY',
   size: 'md',
   disabled: false,
-  format: 'iso',
+  format: 'locale',
   typeable: true,
 })
 
@@ -238,7 +238,6 @@ const sizeClasses: Record<string, string> = {
     <div
       class="relative inline-flex items-center w-full rounded-sm border transition-colors duration-150 overflow-hidden"
       :class="[
-        sizeClasses[size],
         'border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-background)_80%,var(--app-canvas-bg)_20%)]',
         open ? 'border-[var(--app-accent)]' : 'hover:border-[var(--app-muted)]/50',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
@@ -261,7 +260,8 @@ const sizeClasses: Record<string, string> = {
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'flex-1 h-full px-2 bg-transparent outline-none min-w-0',
+          'flex-1 px-2 bg-transparent outline-none min-w-0',
+          sizeClasses[size],
           modelValue || inputText ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50',
         ]"
         autocomplete="off"
@@ -274,7 +274,7 @@ const sizeClasses: Record<string, string> = {
       />
       <span
         v-else
-        :class="['flex-1 px-2.5 truncate cursor-pointer', modelValue ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50']"
+        :class="['flex-1 px-2.5 truncate cursor-pointer', sizeClasses[size], modelValue ? 'text-[var(--app-foreground)]' : 'text-[var(--app-muted)]/50']"
         @click="toggleOpen"
       >
         {{ displayValue || placeholder }}
