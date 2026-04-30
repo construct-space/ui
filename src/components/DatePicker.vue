@@ -8,6 +8,9 @@
  *   MM/DD/YYYY     6/7/1982
  *   MM-DD-YYYY     6-7-1982
  *   MM/DD/YY       6/7/82
+ *   MMDDYYYY       06071982   (pure digits)
+ *   YYYYMMDD       19820607   (pure digits)
+ *   MMDDYY         060782     (pure digits, with pivot)
  *
  * 2-digit years pivot at currentYear+10:
  *   yy ≤ pivot → 20yy   (e.g. "26" → 2026)
@@ -172,6 +175,34 @@ function parseTyped(raw: string): string | null {
 
   // 2-digit year — pivot at currentYear+10
   m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/)
+  if (m) {
+    const mo = +m[1], d = +m[2], yy = +m[3]
+    const pivot = (new Date().getFullYear() % 100) + 10
+    const candidates = yy <= pivot ? [2000 + yy, 1900 + yy] : [1900 + yy, 2000 + yy]
+    for (const y of candidates) {
+      const iso = buildIsoSafe(y, mo, d)
+      if (iso && inRange(iso)) return iso
+    }
+  }
+
+  // Pure-numeric MMDDYYYY (e.g. 06071982)
+  m = s.match(/^(\d{2})(\d{2})(\d{4})$/)
+  if (m) {
+    const iso = buildIsoSafe(+m[3], +m[1], +m[2])
+    return iso && inRange(iso) ? iso : null
+  }
+
+  // Pure-numeric YYYYMMDD (e.g. 19820607)
+  m = s.match(/^(\d{4})(\d{2})(\d{2})$/)
+  if (m) {
+    const iso = buildIsoSafe(+m[1], +m[2], +m[3])
+    if (iso && inRange(iso)) return iso
+    // fall through — both 8-digit forms can't both match, but if YYYYMMDD
+    // failed (e.g. month > 12), the MMDDYYYY branch above already tried.
+  }
+
+  // Pure-numeric MMDDYY (e.g. 060782) with pivot
+  m = s.match(/^(\d{2})(\d{2})(\d{2})$/)
   if (m) {
     const mo = +m[1], d = +m[2], yy = +m[3]
     const pivot = (new Date().getFullYear() % 100) + 10
