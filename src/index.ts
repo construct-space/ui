@@ -11,7 +11,6 @@ export { default as Chip } from './components/Chip.vue'
 export { default as ColorPicker } from './components/ColorPicker.vue'
 export { default as ConfirmationModal } from './components/ConfirmationModal.vue'
 export { default as ContextMenu } from './components/ContextMenu.vue'
-export { default as DashboardPanel } from './components/DashboardPanel.vue'
 export { default as Drawer } from './components/Drawer.vue'
 export { default as Dropdown } from './components/Dropdown.vue'
 export { default as DropdownMenu } from './components/DropdownMenu.vue'
@@ -44,7 +43,7 @@ export { default as Tabs } from './components/Tabs.vue'
 export { default as Textarea } from './components/Textarea.vue'
 export { default as Timeline } from './components/Timeline.vue'
 export { default as Notification } from './components/Notification.vue'
-export { default as Toast } from './components/Notification.vue'
+export { default as Toast } from './components/Toast.vue'
 export { default as Tooltip } from './components/Tooltip.vue'
 export { default as Tree } from './components/Tree.vue'
 
@@ -54,35 +53,10 @@ export { default as Breadcrumbs } from './components/Breadcrumbs.vue'
 export { default as DatePicker } from './components/DatePicker.vue'
 export { default as FileInput } from './components/FileInput.vue'
 export { default as MultiSelect } from './components/MultiSelect.vue'
-export { default as Sidebar3D } from './components/Sidebar3D.vue'
 export { default as ToggleGroup } from './components/ToggleGroup.vue'
-export { default as Toolbar3D } from './components/Toolbar3D.vue'
 
 // Layouts
 export { default as SidebarLayout } from './layouts/SidebarLayout.vue'
-export { default as HeaderLayout } from './layouts/HeaderLayout.vue'
-
-// Composables
-export { useNotification, notify } from './composables/useNotification'
-export type { Notification as NotificationItem } from './composables/useNotification'
-export { useAuth } from './composables/useAuth'
-export type { AuthUser, UseAuthOptions } from './composables/useAuth'
-export { useTheme } from './composables/useTheme'
-export type { Theme } from './composables/useTheme'
-export { useClipboard } from './composables/useClipboard'
-export { useMediaQuery, useBreakpoints } from './composables/useMediaQuery'
-export { useFormValidation, required, minLength, maxLength, email, pattern } from './composables/useFormValidation'
-export { useKeyboard, useHotkey } from './composables/useKeyboard'
-export type { KeyBinding } from './composables/useKeyboard'
-export { useClickOutside } from './composables/useClickOutside'
-export { useEscapeKey } from './composables/useEscapeKey'
-export { useLocalStorage } from './composables/useLocalStorage'
-export { useAsync } from './composables/useAsync'
-export type { AsyncState } from './composables/useAsync'
-export { useDebounce, useThrottle, debounce } from './composables/useDebounce'
-export { useToggle, useCounter } from './composables/useToggle'
-export { useSearch } from './composables/useSearch'
-export { useIntersectionObserver } from './composables/useIntersectionObserver'
 
 // Vue plugin for global component registration
 import type { App } from 'vue'
@@ -99,7 +73,6 @@ import Chip from './components/Chip.vue'
 import ColorPicker from './components/ColorPicker.vue'
 import ConfirmationModal from './components/ConfirmationModal.vue'
 import ContextMenu from './components/ContextMenu.vue'
-import DashboardPanel from './components/DashboardPanel.vue'
 import Drawer from './components/Drawer.vue'
 import Dropdown from './components/Dropdown.vue'
 import DropdownMenu from './components/DropdownMenu.vue'
@@ -132,6 +105,7 @@ import Tabs from './components/Tabs.vue'
 import Textarea from './components/Textarea.vue'
 import Timeline from './components/Timeline.vue'
 import Notification from './components/Notification.vue'
+import Toast from './components/Toast.vue'
 import Tooltip from './components/Tooltip.vue'
 import Tree from './components/Tree.vue'
 import Autocomplete from './components/Autocomplete.vue'
@@ -139,22 +113,19 @@ import Breadcrumbs from './components/Breadcrumbs.vue'
 import DatePicker from './components/DatePicker.vue'
 import FileInput from './components/FileInput.vue'
 import MultiSelect from './components/MultiSelect.vue'
-import Sidebar3D from './components/Sidebar3D.vue'
 import ToggleGroup from './components/ToggleGroup.vue'
-import Toolbar3D from './components/Toolbar3D.vue'
 import SidebarLayout from './layouts/SidebarLayout.vue'
-import HeaderLayout from './layouts/HeaderLayout.vue'
 
 const allComponents: Record<string, any> = {
   Accordion, Alert, Avatar, Badge, Button, Calendar, Card, Checkbox,
-  Chip, ColorPicker, ConfirmationModal, ContextMenu, DashboardPanel,
+  Chip, ColorPicker, ConfirmationModal, ContextMenu,
   Drawer, Dropdown, DropdownMenu, DropdownMenuItem, Empty, FormField,
   Group, Icon, Input, Kbd, Modal, Pagination, PanelSection, Popover,
   Progress, PropRow, RadioGroup, ScrollArea, Select, SelectMenu,
   Separator, Skeleton, Slideover, Slider, SplitPane, Switch, Tab,
-  Table, Tabs, Textarea, Timeline, Notification, Tooltip, Tree,
+  Table, Tabs, Textarea, Timeline, Notification, Toast, Tooltip, Tree,
   Autocomplete, Breadcrumbs, DatePicker, FileInput, MultiSelect,
-  Sidebar3D, ToggleGroup, Toolbar3D, SidebarLayout, HeaderLayout,
+  ToggleGroup, SidebarLayout,
 }
 
 export const ConstructUI = {

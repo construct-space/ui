@@ -17,6 +17,10 @@
  *  - default       body content
  *  - footer        left side of footer
  *  - footer-end    right side of footer
+ *  - actions       hover-revealed action strip on the right of the footer.
+ *                  Hidden by default, fades in on card hover or keyboard
+ *                  focus. Use for edit/delete/context buttons that would
+ *                  otherwise clutter every card.
  *
  * Props
  *  - title         header-left title
@@ -42,13 +46,14 @@ defineSlots<{
   default?: () => any
   footer?: () => any
   'footer-end'?: () => any
+  actions?: () => any
 }>()
 </script>
 
 <template>
   <div
     :class="[
-      'rounded-sm text-[var(--app-foreground)] transition-shadow duration-150',
+      'group/card rounded-sm text-[var(--app-foreground)] transition-shadow duration-150',
       variant === 'default' && 'bg-[var(--app-background)]',
       variant === 'outline' && 'border border-[var(--app-border)]',
       variant === 'muted' && 'bg-[var(--app-canvas-bg)]',
@@ -91,11 +96,17 @@ defineSlots<{
 
     <!-- Footer -->
     <div
-      v-if="$slots.footer || $slots['footer-end']"
+      v-if="$slots.footer || $slots['footer-end'] || $slots.actions"
       class="px-5 pb-5 pt-4 flex items-center justify-between gap-3"
     >
       <div class="min-w-0 flex-1 flex flex-col">
         <slot name="footer" />
+      </div>
+      <div
+        v-if="$slots.actions"
+        class="shrink-0 opacity-0 group-hover/card:opacity-100 focus-within:opacity-100 transition-opacity duration-150"
+      >
+        <slot name="actions" />
       </div>
       <div v-if="$slots['footer-end']" class="shrink-0">
         <slot name="footer-end" />

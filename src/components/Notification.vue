@@ -1,109 +1,101 @@
 <script setup lang="ts">
-import { useNotification } from '../composables/useNotification'
+// Single inbox notification card. Render one per row in the bell / inbox.
+// Pairs with SDK `useNotification()` which feeds the items.
+//
+//   <Notification
+//     v-for="n in notifications"
+//     :key="n.id"
+//     :title="n.title"
+//     :body="n.body"
+//     :time="n.created_at"
+//     :read="n.read_at != null"
+//     :icon="n.type"
+//     @click="open(n)"
+//     @dismiss="dismiss(n.id)"
+//   />
 
-const { notifications, notification } = useNotification()
-
-const colorClasses: Record<string, string> = {
-  success: 'border-emerald-500/30 bg-emerald-500/10',
-  error: 'border-red-500/30 bg-red-500/10',
-  warning: 'border-amber-500/30 bg-amber-500/10',
-  info: 'border-[var(--app-accent)]/30 bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)]',
+interface Props {
+  title: string
+  body?: string
+  /** ISO date string or Date — rendered as relative time ("2m", "1h"). */
+  time?: string | Date
+  /** Read state; unread items show an accent dot. */
+  read?: boolean
+  /** Optional notification type label (chat.mention, board.assigned). */
+  icon?: string
+  /** When true, swallows the dismiss button (e.g. system notifications). */
+  pinned?: boolean
 }
 
-const iconColorClasses: Record<string, string> = {
-  success: 'text-emerald-500',
-  error: 'text-red-500',
-  warning: 'text-amber-500',
-  info: 'text-[var(--app-accent)]',
-}
+const props = withDefaults(defineProps<Props>(), {
+  read: false,
+  pinned: false,
+})
 
-function getColorClass(color?: string): string {
-  return colorClasses[color || 'info'] || colorClasses.info
-}
+const emit = defineEmits<{
+  click: []
+  dismiss: []
+}>()
 
-function getIconColorClass(color?: string): string {
-  return iconColorClasses[color || 'info'] || iconColorClasses.info
+function formatTime(time?: string | Date): string {
+  if (!time) return ''
+  const date = typeof time === 'string' ? new Date(time) : time
+  const diff = Date.now() - date.getTime()
+  const m = Math.floor(diff / 60_000)
+  if (m < 1) return 'now'
+  if (m < 60) return `${m}m`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h`
+  const d = Math.floor(h / 24)
+  if (d < 7) return `${d}d`
+  return date.toLocaleDateString()
 }
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-80">
-      <TransitionGroup
-        tag="div"
-        class="flex flex-col gap-2"
-        enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-        leave-active-class="transition-all duration-200 ease-[cubic-bezier(0.4,0,1,1)]"
-        enter-from-class="opacity-0 translate-x-full"
-        leave-to-class="opacity-0 translate-x-full"
-        move-class="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-      >
-        <div v-for="t in notifications" :key="t.id" :class="[
-          'rounded-sm border px-4 py-3 shadow-lg backdrop-blur-sm',
-          'bg-[var(--app-background)]',
-          getColorClass(t.color),
-        ]">
-          <div class="flex items-start gap-3">
-            <div :class="['mt-0.5 shrink-0', getIconColorClass(t.color)]">
-              <!-- Success icon -->
-              <svg v-if="t.color === 'success'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-              <!-- Error icon -->
-              <svg v-else-if="t.color === 'error'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
-              <!-- Warning icon -->
-              <svg v-else-if="t.color === 'warning'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <!-- Info icon -->
-              <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-            </div>
+  <button
+    type="button"
+    class="w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-sm transition-colors cursor-pointer"
+    :class="[
+      props.read
+        ? 'bg-transparent hover:bg-[var(--app-muted)]/5'
+        : 'bg-[color-mix(in_srgb,var(--app-accent)_6%,transparent)] hover:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)]',
+    ]"
+    @click="emit('click')"
+  >
+    <span
+      class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full"
+      :class="props.read ? 'bg-transparent' : 'bg-[var(--app-accent)]'"
+    />
 
-            <div class="flex-1 min-w-0">
-              <p :class="['text-[11px] tracking-[0.12em] uppercase font-medium', getIconColorClass(t.color)]">
-                {{ t.title }}
-              </p>
-              <p v-if="t.description" class="mt-1.5 text-sm text-[var(--app-foreground)]">
-                {{ t.description }}
-              </p>
-              <button v-if="t.action"
-                class="mt-2 text-[10px] tracking-[0.08em] uppercase font-medium px-2.5 py-1 rounded-sm transition-colors cursor-pointer"
-                :class="[getIconColorClass(t.color), 'hover:bg-white/10 border border-current/20']"
-                @click="t.action!.onClick(); notification.remove(t.id)">
-                {{ t.action.label }}
-              </button>
-            </div>
-
-            <button
-              class="shrink-0 rounded-sm text-[var(--app-muted)] hover:text-[var(--app-foreground)] transition-colors cursor-pointer"
-              @click="notification.remove(t.id)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </TransitionGroup>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-baseline gap-2">
+        <p class="text-sm font-medium text-[var(--app-foreground)] truncate flex-1">
+          {{ props.title }}
+        </p>
+        <span v-if="props.time" class="text-[11px] text-[var(--app-muted)] shrink-0">
+          {{ formatTime(props.time) }}
+        </span>
+      </div>
+      <p v-if="props.body" class="mt-0.5 text-xs text-[var(--app-muted)] line-clamp-2">
+        {{ props.body }}
+      </p>
+      <p v-if="props.icon" class="mt-1 text-[10px] tracking-[0.08em] uppercase text-[var(--app-muted)]">
+        {{ props.icon }}
+      </p>
     </div>
-  </Teleport>
+
+    <button
+      v-if="!props.pinned"
+      type="button"
+      class="shrink-0 mt-1 rounded-sm text-[var(--app-muted)] hover:text-[var(--app-foreground)] transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+      @click.stop="emit('dismiss')"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </button>
 </template>
