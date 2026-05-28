@@ -1,12 +1,42 @@
 /**
  * Construct UI — Reka UI state overrides & utility keyframes
  *
- * Import this file in your app if you use Reka UI primitives directly
- * or need the indeterminate progress animation.
+ * Imported by @construct-space/ui/style.css. Apps may override any --app-*
+ * variables after importing the package stylesheet.
  *
- * The host app (or useTheme().init()) owns all --app-* variables.
- * Components reference var(--app-*) via Tailwind arbitrary values.
+ * The host app (or useAppTheme().init()) owns all --app-* variables in
+ * Construct. The defaults here keep the package usable in standalone apps.
  */
+
+:root {
+  --app-background: #ffffff;
+  --app-foreground: #1e293b;
+  --app-muted: #94a3b8;
+  --app-accent: #ff2d55;
+  --app-accent-foreground: #ffffff;
+  --app-border: #e2e8f0;
+  --app-canvas-bg: #f1f5f9;
+  --app-status-bg: #f8fafc;
+  --app-surface: #ffffff;
+  --app-input-bg: #f8fafc;
+  --app-card-bg: var(--app-surface);
+  --app-card-hover: var(--app-input-bg);
+}
+
+:root.dark {
+  --app-background: #18181b;
+  --app-foreground: #fafafa;
+  --app-muted: #71717a;
+  --app-accent: #ff2d55;
+  --app-accent-foreground: #ffffff;
+  --app-border: #27272a;
+  --app-canvas-bg: #09090b;
+  --app-status-bg: #18181b;
+  --app-surface: #1f1f23;
+  --app-input-bg: #222226;
+  --app-card-bg: var(--app-surface);
+  --app-card-hover: var(--app-input-bg);
+}
 
 /* reka-ui checked state overrides */
 [data-state="checked"].bg-primary,

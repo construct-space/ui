@@ -90,13 +90,13 @@ onUnmounted(cleanup)
       v-if="isOpen"
       ref="contentRef"
       :style="{ position: 'fixed', ...contentStyle }"
-      class="z-50 min-w-40 overflow-hidden rounded-md border border-(--app-border) bg-(--app-background) p-1 shadow-lg"
+      class="z-50 min-w-40 overflow-hidden rounded-md border border-[var(--app-border)] bg-[var(--app-background)] p-1 shadow-lg"
     >
       <template v-for="(item, index) in items" :key="index">
-        <div v-if="item.separator" class="my-1 h-px bg-(--app-border)" />
+        <div v-if="item.separator" class="my-1 h-px bg-[var(--app-border)]" />
         <div
           v-else
-          class="relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-(--app-foreground) outline-none cursor-pointer select-none hover:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)] hover:text-[var(--app-accent)]"
+          class="relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-[var(--app-foreground)] outline-none cursor-pointer select-none hover:bg-[color-mix(in_srgb,var(--app-accent)_10%,transparent)] hover:text-[var(--app-accent)]"
           @click="onItemClick(item)"
         >
           <component v-if="item.icon" :is="item.icon" class="h-4 w-4 text-[var(--app-muted)]" />

@@ -1,3 +1,5 @@
+import './style.css'
+
 // Components
 export { default as Accordion } from './components/Accordion.vue'
 export { default as Alert } from './components/Alert.vue'

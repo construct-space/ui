@@ -1,6 +1,6 @@
 {
   "name": "@construct-space/ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Construct UI — Vue 3 component library for Construct services",
   "type": "module",
   "main": "./dist/construct-ui.js",
@@ -11,11 +11,16 @@
       "import": "./dist/construct-ui.js",
       "types": "./dist/index.d.ts"
     },
+    "./style.css": "./dist/style.css",
     "./vite": {
       "import": "./dist/vite.js",
       "types": "./dist/vite.d.ts"
     }
   },
+  "style": "./dist/style.css",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist",
     "README.md"

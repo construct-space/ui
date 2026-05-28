@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { resolve } from 'path'
@@ -7,6 +8,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     vue(),
+    tailwindcss(),
     AutoImport({
       imports: ['vue'],
       dts: resolve(__dirname, 'src/auto-imports.d.ts'),
@@ -30,6 +32,7 @@ export default defineConfig({
         'vite': resolve(__dirname, 'src/vite.ts'),
       },
       formats: ['es'],
+      cssFileName: 'style',
     },
     rollupOptions: {
       external: [
