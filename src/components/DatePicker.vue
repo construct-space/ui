@@ -49,6 +49,44 @@ const emit = defineEmits<{
 const open = ref(false)
 const viewDate = ref(new Date())
 const inputEl = ref<HTMLInputElement | null>(null)
+
+// Teleport the calendar to <body> and position it as a fixed popover. An
+// absolutely-positioned dropdown gets clipped by an ancestor with overflow
+// (e.g. a Modal's scrolling body) and can sit under it; a teleported,
+// fixed-positioned panel with a z-index above the modal (z-[60] > Modal z-50)
+// escapes both problems.
+const triggerEl = ref<HTMLElement | null>(null)
+const popoverStyle = ref<Record<string, string>>({})
+
+function positionPopover() {
+  const el = triggerEl.value
+  if (!el) return
+  const r = el.getBoundingClientRect()
+  const POPOVER_H = 330 // approx calendar height
+  const below = window.innerHeight - r.bottom
+  const placeAbove = below < POPOVER_H && r.top > below
+  popoverStyle.value = placeAbove
+    ? { position: 'fixed', left: `${Math.round(r.left)}px`, bottom: `${Math.round(window.innerHeight - r.top + 4)}px` }
+    : { position: 'fixed', left: `${Math.round(r.left)}px`, top: `${Math.round(r.bottom + 4)}px` }
+}
+
+function onReposition() { if (open.value) positionPopover() }
+
+watch(open, (v) => {
+  if (v) {
+    nextTick(positionPopover)
+    window.addEventListener('resize', onReposition)
+    window.addEventListener('scroll', onReposition, true)
+  } else {
+    window.removeEventListener('resize', onReposition)
+    window.removeEventListener('scroll', onReposition, true)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onReposition)
+  window.removeEventListener('scroll', onReposition, true)
+})
 const inputText = ref('')
 
 const selectedDate = computed(() => props.modelValue ? new Date(props.modelValue) : null)
@@ -267,6 +305,7 @@ const sizeClasses: Record<string, string> = {
 <template>
   <div class="relative w-full">
     <div
+      ref="triggerEl"
       class="relative inline-flex items-center w-full rounded-sm border transition-colors duration-150 overflow-hidden"
       :class="[
         'border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-background)_80%,var(--app-canvas-bg)_20%)]',
@@ -322,6 +361,7 @@ const sizeClasses: Record<string, string> = {
       </button>
     </div>
 
+    <Teleport to="body">
     <Transition
       enter-active-class="transition-all duration-150 ease-out"
       leave-active-class="transition-all duration-100 ease-in"
@@ -330,7 +370,8 @@ const sizeClasses: Record<string, string> = {
     >
       <div
         v-if="open"
-        class="absolute z-50 mt-1 w-64 rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg p-3"
+        :style="popoverStyle"
+        class="z-[60] w-64 rounded-lg border border-[var(--app-border)] bg-[var(--app-card-bg)] shadow-lg p-3"
         @click.stop
       >
         <div class="flex items-center justify-between mb-2">
@@ -371,5 +412,6 @@ const sizeClasses: Record<string, string> = {
         </p>
       </div>
     </Transition>
+    </Teleport>
   </div>
 </template>
